@@ -1,0 +1,248 @@
+<wt-shuyai *ngIf="cargando || cargandosi"></wt-shuyai>
+<div class="row p-4">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <div class="options">
+      <div class="dx-fieldset-header">Opciones de búsqueda:</div>
+      <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-6 col-6">
+          <div class="option">
+            <p><b>Procesos</b></p>
+            <p>
+              <dx-select-box noDataText="No hay elementos para mostrar" #domprocesos placeholder="Seleccione Proceso"
+                (onSelectionChanged)="obtenerServicios(domprocesos.value)" [dataSource]="procesos"
+                displayExpr="Descripcion" [searchMode]="searchModeOption" [searchExpr]="searchExprOption"
+                [searchTimeout]="searchTimeoutOption" [minSearchLength]="minSearchLengthOption" [searchEnabled]="true"
+                [showClearButton]="true">
+              </dx-select-box>
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-6 col-6">
+          <div class="option">
+            <p><b>Servicios</b></p>
+            <p>
+              <dx-select-box noDataText="No hay elementos para mostrar" #domservicios placeholder="Seleccione Servicio"
+                (onSelectionChanged)="obtenerProcesosIntegracion(domservicios.value)" [dataSource]="servicios"
+                displayExpr="Nombre" [searchMode]="searchModeOption" [searchExpr]="searchServ"
+                [searchTimeout]="searchTimeoutOption" [minSearchLength]="minSearchLengthOption" [searchEnabled]="true"
+                [showClearButton]="true">
+              </dx-select-box>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <br>
+    <dx-data-grid #grid id="gridContainer" noDataText="No hay registros" [allowColumnResizing]="true"
+      [columnAutoWidth]="true" [dataSource]="procesosIntegracion" keyExpr="IdProcesoIntegracion"
+      [focusedRowEnabled]="true" [hoverStateEnabled]="true" [showBorders]="true" [showColumnLines]="true"
+      [showRowLines]="true" (onRowDblClick)="selectionChanged($event)" (onContentReady)="contentReady($event)"
+      [masterDetail]="{ enabled: false, template: 'detail' }">
+
+      <dxo-selection mode="single"></dxo-selection>
+
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+      </dxo-pager>
+
+      <dxo-filter-row [visible]="true" [applyFilter]="opcionFiltro"></dxo-filter-row>
+
+      <dxi-column dataField="IdProcesoIntegracion" caption="#" [allowEditing]="false" cellTemplate="indexar"
+        [allowFiltering]="false">
+      </dxi-column>
+
+      <dxi-column dataField="IdProceso" dataType="string" caption="Proceso" [allowEditing]="false"
+        [allowFiltering]="false">
+        <dxo-lookup [dataSource]="procesos" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+      </dxi-column>
+      <dxi-column dataField="NumeroRegistros" dataType="number" caption="Número de Registros" [allowFiltering]="false"
+        [allowEditing]="false">
+      </dxi-column>
+      <dxi-column dataField="CodigoLote" caption="Código de Lote" [allowEditing]="false" [allowFiltering]="false">
+      </dxi-column>
+      <dxi-column dataField="FechaProceso" [alignment]="'center'" [editorOptions]="fechaOptions"
+        [format]="{ type: 'dd/MM/yyyy' }" dataType="date" caption="Fecha de Proceso">
+      </dxi-column>
+      <dxi-column dataField="Estado" [alignment]="'center'" caption="Estado" [allowEditing]="false"
+        [allowFiltering]="true">
+        <dxo-lookup [dataSource]="estadoProcesoIntegracion" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+      </dxi-column>
+      <div class="text-center" *dxTemplate="let data of 'indexar'">
+        <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+      </div>
+      <div *dxTemplate="let employee of 'detail'">
+        <div class="card border-primary">
+          <div class="card-body">
+            <h6 class="card-title"><b>Detalle de Servicio</b></h6>
+            <table class="table table-hover table-sm">
+              <thead>
+                <tr>
+
+                  <th scope="col"></th>
+                  <th scope="col">Servicios</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Número de Registros</th>
+                  <th scope="col">Registros Procesados</th>
+                  <th scope="col">Fecha de Creación</th>
+                  <th scope="col">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of servicioIntegracion; let index = index;">
+                  <td class="puntero text-primary" (click)="getIdServicioIntegracion(s.IdServicioIntegracion)"><i
+                      class="fas fa-eye"></i>
+                  </td>
+                  <td>{{getNombreServicio(s.IdServicio)}}</td>
+                  <td>{{s.Nombre}}</td>
+                  <td>{{s.NumeroTotalRegistros}}</td>
+                  <td>{{s.TotalRegistrosProcesados}}</td>
+                  <td>{{s.FechaCreacion | date:"dd/MM/yyyy"}}</td>
+                  <td>{{getEstadoServicio(s.Estado)}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </dx-data-grid>
+  </div>
+</div>
+
+<div class="modal fade" id="mdDevolucion" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{objProceso.Descripcion}}</h5>
+        <button type="button" class="close" (click)="cerrarModal('mdDevolucion')" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <form (ngSubmit)="consultarDevEnvio($event)">
+          <dx-form id="formDev" [colCount]="4" [formData]="filtroDevolucionEnvio">
+            <dxi-item dataField="Producto" [label]="{text: 'Nombre de Producto'}">
+              <dxi-validation-rule type="required" message="El nombre de producto es obligatoría"></dxi-validation-rule>
+            </dxi-item>
+            <dxi-item dataField="Identificacion" [label]="{text: 'Identificación'}"></dxi-item>
+            <dxi-item dataField="NumeroCetificadoPoliza" [label]="{text: 'Número de Certificado'}">
+            </dxi-item>
+            <dxi-item itemType="button" horizontalAlignment="left" [buttonOptions]="buttonOptions">
+            </dxi-item>
+          </dx-form>
+        </form>
+        <br>
+        <dx-data-grid #gridDEV noDataText="No hay registros" id="gridDEV" [dataSource]="listaDimanica" keyExpr="Id"
+          [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [focusedRowEnabled]="true"
+          [allowColumnResizing]="true" [columnResizingMode]="'widget'" [columnMinWidth]="50" [columnAutoWidth]="true">
+          <dxo-paging [pageSize]="5"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+          </dxo-pager>
+          <dxi-column type="text" caption="#" cellTemplate="indexar"></dxi-column>
+          <dxi-column dataField="Identificacion" caption="Identificación"></dxi-column>
+          <dxi-column dataField="NumeroCertificadoPoliza" [alignment]="'center'" caption="Número Certificado Póliza">
+          </dxi-column>
+          <dxi-column dataField="Cliente"></dxi-column>
+          <dxi-column dataField="RazonSocial" caption="Razón Social"></dxi-column>
+          <dxi-column dataField="NombreJuridico" caption="Nombre Jurídico"></dxi-column>
+          <dxi-column dataField="Producto"></dxi-column>
+          <dxi-column dataField="IdCancelacionZoho" caption="Id Cancelación Zoho"></dxi-column>
+          <dxi-column dataField="TotalProrrata" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="TotalDevolver" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="Estado" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="EstadoCancelacion" [alignment]="'center'" caption="Estado Cancelación"></dxi-column>
+          <dxi-column dataField="EstadoDevolucion" [alignment]="'center'" caption="Estado Devolución"></dxi-column>
+          <dxi-column dataField="FechaSolicitud" [alignment]="'center'" dataType="date"
+            [format]="{ type: 'dd/MM/yyyy' }"></dxi-column>
+          <dxi-column dataField="GUID" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="Observaciones"></dxi-column>
+          <div class="text-center" *dxTemplate="let data of 'indexar'">
+            <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+          </div>
+        </dx-data-grid>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="mdEmision" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">{{objProceso.Descripcion}}</h5>
+        <button type="button" class="close" (click)="cerrarModal('mdEmision')" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <form (ngSubmit)="consultarEmision($event)">
+          <dx-form id="formEmi" [colCount]="4" [formData]="filtroEmision">
+            <dxi-item dataField="ApellidoPaterno">
+              <dxi-validation-rule type="required" message="El apellido es obligatorío"></dxi-validation-rule>
+            </dxi-item>
+            <dxi-item dataField="NumeroIdentificacion" [label]="{text: 'Identificación'}">
+              <dxi-validation-rule type="required" message="La Identificación es obligatoría"></dxi-validation-rule>
+            </dxi-item>
+            <dxi-item dataField="CertificadoCliente"></dxi-item>
+            <dxi-item itemType="button" horizontalAlignment="left" [buttonOptions]="buttonOptions">
+            </dxi-item>
+          </dx-form>
+        </form>
+        <br>
+        <dx-data-grid #gridEMI noDataText="No hay registros" id="gridDinamico" [dataSource]="listaDimanica" keyExpr="Id"
+          [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [focusedRowEnabled]="true"
+          [allowColumnResizing]="true" [columnResizingMode]="'widget'" [columnMinWidth]="50" [columnAutoWidth]="true">
+          <dxo-paging [pageSize]="5"></dxo-paging>
+          <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+          </dxo-pager>
+          <dxi-column type="text" caption="#" cellTemplate="indexar"></dxi-column>
+          <dxi-column dataField="TipoAsegurado" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="TipoIdentificacion" [alignment]="'center'" caption="Tipo Identificación"></dxi-column>
+          <dxi-column dataField="NumeroIdentificacion" caption="Identificación"></dxi-column>
+          <dxi-column dataField="ApellidoPaterno"></dxi-column>
+          <dxi-column dataField="ApellidoMaterno"></dxi-column>
+          <dxi-column dataField="PrimerNombre"></dxi-column>
+          <dxi-column dataField="SegundoNombre"></dxi-column>
+          <dxi-column dataField="Nacionalidad" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="FechaNacimiento" [alignment]="'center'" dataType="date" [format]="{ type: 'dd/MM/yyyy' }"></dxi-column>
+          <dxi-column dataField="Genero" [alignment]="'center'" caption="Género"></dxi-column>
+          <dxi-column dataField="EstadoCivil" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="DireccionTitular" caption="Dirección Titular"></dxi-column>
+          <dxi-column dataField="DireccionBienAsegurado" caption="Dirección Bien Asegurado"></dxi-column>
+          <dxi-column dataField="CodigoCanton" [alignment]="'center'" caption="Cantón"></dxi-column>
+          <dxi-column dataField="CodigoProvincia" [alignment]="'center'" caption="Provincia"></dxi-column>
+          <dxi-column dataField="CodigoPais" [alignment]="'center'" caption="País"></dxi-column>
+          <dxi-column dataField="TelefonoDomicilio" caption="Teléfono Domicilio"></dxi-column>
+          <dxi-column dataField="TelefonoCelular" caption="Teléfono Celular"></dxi-column>
+          <dxi-column dataField="Email"></dxi-column>
+          <dxi-column dataField="CodigoAgente" [alignment]="'center'" caption="Agente"></dxi-column>
+          <dxi-column dataField="FormaPago" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="CodigoPeriodicidad" [alignment]="'center'" caption="Periodicidad"></dxi-column>
+          <dxi-column dataField="TipoCuenta" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="PrimaNetaCuota" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="PrimaTotalCuota" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="CodigoPlan" [alignment]="'center'" caption="Plan"></dxi-column>
+          <dxi-column dataField="NumeroCuota" [alignment]="'center'" caption="Número Cuota"></dxi-column>
+          <dxi-column dataField="CodigoActividadEconomica" [alignment]="'center'" caption="Actividad Económica"></dxi-column>
+          <dxi-column dataField="Ingresos" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="Patrimonio" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="InicioVigencia" [alignment]="'center'" dataType="date" [format]="{ type: 'dd/MM/yyyy' }"></dxi-column>
+          <dxi-column dataField="CertificadoCliente" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="FechaDebito" [alignment]="'center'" dataType="date" [format]="{ type: 'dd/MM/yyyy' }" caption="Fecha Débito">
+          </dxi-column>
+          <dxi-column dataField="SumaAsegurada" dataType="number" format="#,##0.00"></dxi-column>
+          <dxi-column dataField="TasaRiesgo" [alignment]="'center'"></dxi-column>
+          <dxi-column dataField="PorcentajeComision" dataType="number" format="#,##0.00" caption="Porcentaje Comisión"></dxi-column>
+          <dxi-column dataField="ValorComision" dataType="number" format="#,##0.00" caption="Valor Comisión"></dxi-column>
+          <dxi-column dataField="CodigoCertificadoNova" [alignment]="'center'" caption="Código Certificado Nova"></dxi-column>
+          <dxi-column dataField="CodigoDebitoNova" [alignment]="'center'" caption="Código Débito Nova"></dxi-column>
+          <div class="text-center" *dxTemplate="let data of 'indexar'">
+            <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+          </div>
+        </dx-data-grid>
+      </div>
+    </div>
+  </div>
+</div>

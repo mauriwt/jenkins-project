@@ -1,0 +1,368 @@
+
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <br>
+    <div class="card-body">
+      <form id="frmBuscar" #formBuq="ngForm" (ngSubmit)="buscarHomologaciones(formBuq.value)">
+        <div class="form-row">
+          <div class="form-group col-md-6 has-search">
+            <span class="fa fa-search form-control-feedback"></span>
+            <input id="buscador" type="text" class="form-control" style="height: 40px"
+              placeholder=" Ingrese criterio de búsqueda" name="termino" [(ngModel)]="mBuscar"
+              data-toggle="popover" data-trigger="hover" (keyup)="keyUpBusqueda()">
+            <span *ngIf="mBuscar.trim().length > 0" id="searchclear" class="fas fa-times-circle"
+              (click)="limpiarBusqueda()"></span>
+          </div>
+
+          <div class="form-group col-md-6">
+            <button type="button" class="my-1" class="btn btn-outline-primary btn-md"
+              (click)="buscarHomologaciones(formBuq.value)" [disabled]="mBuscar.trim().length == 0">Buscar</button>
+            <span>&nbsp;</span>
+            <button type="button" class="my-1" class="btn btn-outline-primary btn-md"
+              (click)="nuevaHomologacion()">Nuevo</button>
+          </div>
+        </div>
+      </form>
+      <br>
+      <dx-data-grid #grid id="gridContainer" [dataSource]="dataSource" keyExpr="IdHomologacion" [showBorders]="true"
+        (onEditingStart)="iniciarEdicion($event)" noDataText="No hay registros" [allowColumnResizing]="true"
+        [showRowLines]="true" [columnAutoWidth]="true" [showColumnLines]="true" [focusedRowEnabled]="true"
+        [hoverStateEnabled]="true" [selectedRowKeys]="[]">
+
+        <dxo-search-panel placeholder=" Buscar ..." [visible]="false" [highlightSearchText]="false">
+
+        </dxo-search-panel>
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+        </dxo-pager>
+        <dxi-column alignment="center" caption="#" name="No" cellTemplate="NoTemplate" width="auto">
+        </dxi-column>
+        <div *dxTemplate="let data of 'NoTemplate'">
+          <a class="dx-link"><b>
+              {{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}
+            </b>
+          </a>
+        </div>
+        <dxi-column type="buttons" [width]="70">
+          <dxi-button name="edit"></dxi-button>
+        </dxi-column>
+        <dxo-editing mode="popup" [allowUpdating]="true">
+
+          <dxo-popup title="" [showTitle]="true" [width]="800" [height]="670" [onShowing]="onShowing" #popupForm>
+            <dxi-toolbar-item [visible]=false>
+            </dxi-toolbar-item>
+          </dxo-popup>
+          <dxo-form>
+            <dxi-item itemType="simple">
+              <form id="editForm" *ngIf="mMuestraActualizacion == 0">
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    <table>
+                      <tr>
+                        <td>
+                          <label class="control-label-apple">¿Es
+                            Catálogo?
+                          </label>
+                       <td>
+                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                        <td>
+                          <fieldset [disabled]="false">
+                            <div class="onoffswitch">
+                              <input type="checkbox" class="onoffswitch-checkbox" id="esCatalogoNuevo"
+                                [checked]="mEsCatalogo" [(ngModel)]="mEsCatalogo" [readonly]="false"
+                                name="esCatalogoNuevo" (change)="formSize()">
+                              <label class="onoffswitch-label" for="esCatalogoNuevo">
+                                <span class="onoffswitch-inner"></span>
+                                <span class="onoffswitch-switch"></span>
+                              </label>
+                            </div>
+                          </fieldset>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </div>
+
+                  <div class="form-group col-md-6">
+
+                    <table>
+                      <tr>
+                        <td>
+                          <label class="control-label-apple">¿Existe en
+                            SIGS?</label>
+                        </td>
+                        <td>
+                          &nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                        <td>
+                          <fieldset [disabled]="false">
+                            <div class="onoffswitch">
+                              <input type="checkbox" class="onoffswitch-checkbox" id="existeSigs"
+                                [checked]="mExisteSigs" [(ngModel)]="mExisteSigs" [readonly]="false"
+                                name="existeSigs" (change)="formSize()">
+                              <label class="onoffswitch-label" for="existeSigs">
+                                <span class="onoffswitch-inner"></span>
+                                <span class="onoffswitch-switch"></span>
+                              </label>
+                            </div>
+                          </fieldset>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </div>
+
+                </div>
+                <div class="form-row" *ngIf="mEsCatalogo && mExisteSigs">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="catalogoTablaC">Catálogo
+                      Tabla:</label>
+                    <select class="form-control" id="catalogoTablaC" [(ngModel)]="mCatalogoTabla"
+                      name="catalogoTablaC" [ngClass]="fieldCss(formulario,'CatalogoTabla')"
+                      (blur)="blurCatalogoTabla()" style="width: auto;">
+                      <option *ngFor="let item of listaCatalogoTabla; let i = index" [value]="item.CodigoCatalogo">
+                        {{item.Nombre}}
+                      </option>
+                    </select>
+                    <label *ngIf="mEsCatalogo && validCatalogoTabla" class="text-danger"
+                      style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+
+                <div class="form-row" *ngIf="!mEsCatalogo || !mExisteSigs">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="ptextCatalogoTablaC">Catálogo
+                      Tabla:</label>
+                    <input type="text" class="form-control" id="ptextCatalogoTablaC"
+                      [(ngModel)]="mtextCatalogoTabla" name="ptextCatalogoTablaC"
+                      placeholder=" Catálogo de la tabla de homologación" maxLength="64"
+                      [ngClass]="fieldCss(formulario,'textCatalogoTabla')" (blur)="blurTextCatalogoTabla()"
+                      [disabled]="!mEsCatalogo && !mExisteSigs">
+                    <label *ngIf="!mEsCatalogo && validTextCatalogoTabla" class="text-danger"
+                      style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+
+                <div class="form-row">
+
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="pcodigoHomologacionC">Código
+                      Homologación:</label>
+                    <input upperCase type="text" class="form-control" id="pcodigoHomologacionC"
+                      name="pcodigoHomologacionC" [(ngModel)]="mCodigoHomologacion"
+                      placeholder=" Código de la homologación" maxLength="32"
+                      [ngClass]="fieldCss(formulario,'CodigoHomologacion')" (blur)="blurCodigoHomologacion()"
+                      [(disabled)]="!mEsCatalogo && !mExisteSigs">
+                    <label *ngIf="validCodigoHomologacion" class="text-danger" style="font-size:15px;">Campo Requerido</label>
+                  </div>
+
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="pnombreC">Nombre:</label>
+                    <input upperCase type="text" class="form-control" id="pnombreC" [(ngModel)]="mNombre"
+                      name="pnombreC" placeholder=" Nombre de la homologación" maxLength="64"
+                      [ngClass]="fieldCss(formulario,'Nombre')" (blur)="blurNombre()"
+                      [(disabled)]="!mEsCatalogo && !mExisteSigs">
+                    <label *ngIf="validNombre" class="text-danger" style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-10 input-group-sm">
+
+                    <label class="control-label-apple" for="DescripcionC">
+                      Descripción:
+                    </label>
+                    <textarea class="form-control" id="DescripcionC" name="DescripcionC" rows="3"
+                      placeholder=" Descripción de la homologación" [(ngModel)]="mDescripcion" maxLength="256"
+                      style="font-size: 14px;" [(disabled)]="!mEsCatalogo && !mExisteSigs"></textarea>
+                  </div>
+                  <form name="form" [formGroup]="formActivoHomologacion" #f="ngForm" novalidate>
+                    <div class="form-group col-md-3">
+                      <label class="control-label-apple" for="chkActivoCabecera">Activo:</label>
+                      <fieldset [disabled]="false" [(disabled)]="!mEsCatalogo && !mExisteSigs">
+                        <label class="contener">
+                          <input id="chkActivoCabecera" type="checkbox" formControlName="activoCabecera"
+                            [(ngModel)]="mActivo" [(checked)]="mActivo"
+                            [(disabled)]="!mEsCatalogo && !mExisteSigs" name="chkActivoCabecera">
+                          <span class="checkmark"></span>
+                        </label>
+                      </fieldset>
+                    </div>
+                  </form>
+                </div>
+                <button type="button" class="my-1" class="btn btn-outline-primary btn-md"
+                  (click)="nuevoDetalleActualiza()" [(disabled)]="!mEsCatalogo && !mExisteSigs">Nuevo
+                  Detalle
+                </button>
+                <br>
+                <br>
+                <div style="width:700px; background:white">
+                  <table class="table table-sm table-hover table-bordered"
+                    style="width:100%; font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';">
+                    <thead class="dx-header-row">
+
+                      <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center" colspan=" 2">Acciones</th>
+                        <th scope="col">Valor SIGS</th>
+                        <th scope="col">Valor Homologar 1</th>
+                        <th scope="col">Valor Homologar 2</th>
+                        <th scope="col">Valor Homologar 3</th>
+                        <th scope="col">Valor Integrar</th>
+                        <th scope="col">Activo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+
+                      <tr id="fila_{{index}}" *ngFor="let item of detalle; let index = index;"
+                        style="background: #f39ea7"
+                        [ngStyle]="{'background-color': item.DetalleEliminado ? '#f39ea7' : 'white'}">
+
+                        <td class="text-center"><b>{{index + 1}}</b></td>
+
+                        <td class="text-center text-primary">
+                          <a *ngIf="!item.DetalleEliminado" title="Editar" class="puntero" (click)="actualizarDetalle(index, true, $event)"><i
+                              class="fas fa-pencil-alt fa-lg"></i>
+                            </a>
+                        </td>
+                        <td class="text-center text-primary">
+                          <a *ngIf="!item.DetalleEliminado" title="Eliminar"
+                            class="puntero" (click)="confirmarEliminacion(index)"><i class="fas fa-trash-alt fa-lg"></i>
+                          </a>
+                        </td>
+                        <td class="text-center">
+                          {{item.ValorSIGS}}
+                        </td>
+                        <td class="text-center">{{item.ValorHomologar}}</td>
+                        <td class="text-center">{{item.ValorHomologar2}}</td>
+                        <td class="text-center">{{item.ValorHomologar3}}</td>
+                        <td class="text-center">
+                          {{item.ValorIntegrar}}
+                        </td>
+                        <td class="text text-center">
+                          <fieldset disabled="true">
+                            <input type="checkbox" [checked]="item.Activo">
+                          </fieldset>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <div class="form-row">
+                    &nbsp;&nbsp;<button type="button" class="my-1" class="btn btn-outline-primary btn-md"
+                      (click)="actualizar()" [(disabled)]="!mEsCatalogo && !mExisteSigs">Guardar</button>
+                    <div *ngIf="!mNuevo">
+                      &nbsp;<button type="button" class="my-1" class="btn btn-outline-primary btn-md"
+                        (click)="confirmarEliminacion()">Eliminar</button>
+                    </div>
+                    &nbsp;<button type="button" class="btn btn-outline-secondary btn-secondary-apple"
+                      (click)="cancelarEdicion()">Cancelar</button>
+                  </div>
+                </div>
+              </form>
+
+              <div id="detailForm" *ngIf="mMuestraActualizacion == 1">
+
+                <div class="form-row" *ngIf="!(mEsCatalogo && !mExisteSigs)">
+                  <div class="form-group col-md-6 input-group-sm">
+
+                    <label class="control-label-apple required" for="pvalorSigs" style="width: 1300px;">Valor
+                      SIGS:</label>
+
+                    <input upperCase type="text" class="form-control" id="pvalorSigs" [(ngModel)]="mValorSIGS"
+                      name="pvalorSigs" placeholder=" Valor SIGS de la homologación" maxLength="128"
+                      (blur)="blurValorSIGS()">
+                    <label *ngIf="validValorSIGS" class="text-danger" style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="pvalorHomologar" style="width: 1300px;">Valor
+                      Homologar 1:</label>
+                    <input type="text" class="form-control" id="pvalorHomologar" [(ngModel)]="mValorHomologar"
+                      name="pvalorHomologar" placeholder=" Valor a homologar 1" maxLength="128"
+                      (blur)="blurValorHomologar()">
+                    <label *ngIf="validValorHomologar" class="text-danger" style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple" for="pvalorHomologar2">Valor
+                      Homologar 2:</label>
+                    <input type="text" class="form-control" id="pvalorHomologar2" [(ngModel)]="mValorHomologar2"
+                      name="pvalorHomologar2" placeholder=" Valor a homologar 2" maxLength="128">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple" for="pvalorHomologar3">Valor
+                      Homologar 3:</label>
+                    <input type="text" class="form-control" id="pvalorHomologar3" [(ngModel)]="mValorHomologar3"
+                      name="pvalorHomologar3" placeholder=" Valor a homologar 3" maxLength="128">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6 input-group-sm">
+                    <label class="control-label-apple required" for="pvalorIntegracion">Valor
+                      Integración:</label>
+                    <input type="text" class="form-control" id="pvalorIntegracion" [(ngModel)]="mValorIntegrar"
+                      name="pvalorIntegracion" placeholder=" Valor de la Integración" maxLength="128"
+                      (blur)="blurValorIntegrar()">
+                    <label *ngIf="validValorIntegrar" class="text-danger" style="font-size:15px;">Campo Requerido</label>
+                  </div>
+                </div>
+                <div class="form-row col-md-12 input-group-sm">
+                  <label class="control-label-apple">Activo:</label>&nbsp;&nbsp;
+                  <form name="form" [formGroup]="formActivoDetalle" #f="ngForm" novalidate>
+                    <fieldset [disabled]="false">
+                      <label class="contener">
+                        <input id="chkActivoDetalle" type="checkbox" formControlName="activoDetalle"
+                          [(ngModel)]="mActivoDetalle" [(checked)]="mActivoDetalle" name="chkActivoDetalle">
+                        <span class="checkmark"></span>
+                      </label>
+                    </fieldset>
+                  </form>
+                </div>
+                <div>
+                  <br>
+                  <button type="button" class="my-1" class="btn btn-outline-primary"
+                    (click)="guardarPrevioDetalleActualiza()">Guardar
+                    Detalle</button>&nbsp;
+                  <button type="reset" (click)="closeActualizarDetalle()"
+                    class="btn btn-outline-secondary btn-secondary-apple">Cancelar</button>
+                </div>
+              </div>
+            </dxi-item>
+          </dxo-form>
+
+        </dxo-editing>
+
+        <dxi-column dataField="DescripcionCatalogo" caption="Catálogo / Tabla" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="CodigoHomologacion" caption="Código Homologación" [allowEditing]="false"
+          alignment="center">
+        </dxi-column>
+        <dxi-column dataField="Nombre" caption="Nombre" [allowEditing]="false"></dxi-column>
+        <dxi-column dataField="Descripcion" caption="Descripción" [allowEditing]="false"></dxi-column>
+
+        <dxi-column
+          dataField="EsCatalogo"
+          caption="Catálogo?"
+          [allowEditing]="false"
+          [allowFiltering]="false">
+        </dxi-column>
+        <dxi-column dataField="CatalogoTabla" caption="Código Catálogo" [allowEditing]="false" alignment="center">
+        </dxi-column>
+
+        <dxi-column dataField="ExisteEnSIGS" caption="Existe en SIGS" [allowEditing]="false" alignment="center"
+          [allowFiltering]="false">
+        </dxi-column>
+
+        <dxi-column dataField="Activo" [allowFiltering]="false" [allowEditing]="false" caption="Activo"></dxi-column>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+.mat-slide-toggle.mat-checked .mat-slide-toggle-thumb {
+  background-color: #483ee4;
+}
+
+.mat-slide-toggle.mat-checked .mat-slide-toggle-bar {
+  background-color: rgba(49, 60, 202, 0.54);
+}
+
+.cdk-overlay-container {
+  z-index: 2000;
+}
+
+.cdk-global-overlay-wrapper {
+  z-index: 2000;
+}
+
+.cdk-overlay-pane {
+  z-index: 2000;
+}
+
+
+.mat-input-element:disabled {
+  color: rgba(0,0,0);
+}
+
+.mat-select-disabled .mat-select-value {
+  color: rgba(0,0,0);
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-label {
+  color: rgba(0,0,0,.9);
+}
+
+.mat-row, .mat-footer-row, .mat-header-row {
+  height: 0px !important;
+}
+
+table.mat-table > thead  {
+  background-color: #096eaf !important;
+  color: #ffffff !important;
+  height: 28px !important;
+}
+
+table.mat-table > thead > tr.mat-header-row > th.mat-header-cell{
+  color: white;
+  font-size: 1.0em;
+  text-align: center;
+}
+
+th.mat-header-cell, td.mat-cell, td.mat-footer-cell {
+  padding-left: 10px !important;
+  border-right: 1px solid #dee2e6 !important;
+  border-left: 1px solid #dee2e6 !important;
+}
+
+table {
+  width: 100%;
+}
+

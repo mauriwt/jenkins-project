@@ -1,0 +1,14 @@
+<h4 mat-dialog-title>
+    {{title}}
+</h4>
+
+<div [innerHTML]="message" mat-dialog-content>
+</div>
+<br>
+<div mat-dialog-actions *ngIf="!confirmar">
+    <button type="button" class="btn btn-outline-primary" (click)="onConfirm()"><b>SI</b></button>&nbsp;
+    <button type="button" class="btn btn-outline-secondary" (click)="onDismiss()"><b>NO</b></button>
+</div>
+<div mat-dialog-actions *ngIf="confirmar">
+  <button type="button" class="btn btn-outline-primary" (click)="onConfirm()"><b>ACEPTAR</b></button>&nbsp;
+</div>

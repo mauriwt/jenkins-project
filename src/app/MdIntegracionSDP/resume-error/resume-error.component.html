@@ -1,0 +1,43 @@
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.2)" [(visible)]="cargando" [showIndicator]="true" [showPane]="true"
+  [shading]="true" [closeOnOutsideClick]="false">
+</dx-load-panel>
+<div class="option px-4">
+  <div class="dx-fieldset-header">Tabla de resumen de errores:
+  </div>
+  <dx-data-grid (onToolbarPreparing)="onToolbarPreparing($event)" noDataText="No hay registros" id="gridResumenError" #gridResumenError [dataSource]="dataSourceResumen"
+    [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [columnAutoWidth]="true"
+    [focusedRowEnabled]="true" [hoverStateEnabled]="true" [allowColumnResizing]="true"
+    [columnResizingMode]="'widget'" [columnMinWidth]="50">
+
+    <dxo-export
+        [enabled]="true"
+        [fileName]="nombreArchivo">
+    </dxo-export>
+    <dxo-filter-row [visible]="true" [applyFilter]="'auto'"></dxo-filter-row>
+    <dxo-sorting mode="simple">
+    </dxo-sorting>
+    <dxo-paging [pageSize]="25"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[25, 50, 100]" [showInfo]="true">
+    </dxo-pager>
+    <dxi-column [editorOptions]="{showClearButton: true}" dataField="NombreServicio" caption="Servicio"
+      [allowFiltering]="true">
+    </dxi-column>
+    <dxi-column dataField="Mensaje" [allowFiltering]="true"></dxi-column>
+
+    <dxi-column [editorOptions]="{showClearButton: true}" dataField="Origen" [editorOptions]="opcionTipoEntidad"
+      [alignment]="'center'" [allowFiltering]="true">
+      <dxo-lookup [dataSource]="origenes" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+
+    <dxi-column dataField="TotalErrores" dataType="number" [alignment]="'center'" [allowFiltering]="true"
+      [allowSorting]="true"></dxi-column>
+    <dxi-column dataField="Solventados" dataType="number" [alignment]="'center'" [allowFiltering]="true"
+      [allowSorting]="true"></dxi-column>
+    <dxi-column caption="Por Solventar" [calculateCellValue]="calculateCellValue" [alignment]="'center'" [allowFiltering]="true"
+      [allowSorting]="true"></dxi-column>
+    <dxi-column dataField="FechaInicio" caption="Fecha Primer Incidente" [format]="'dd/MM/yyyy'" dataType="date"
+      [alignment]="'center'" [allowFiltering]="true" [allowSorting]="true"></dxi-column>
+    <dxi-column dataField="FechaFin" caption="Fecha Ultimo Incidente" [format]="'dd/MM/yyyy'" dataType="date"
+      [alignment]="'center'" [allowFiltering]="true" [allowSorting]="true"></dxi-column>
+  </dx-data-grid>
+</div>

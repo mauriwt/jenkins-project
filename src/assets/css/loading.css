@@ -1,0 +1,140 @@
+
+.loading {
+  display: block;
+  margin: auto;
+  position: relative;
+  width: 50px;
+  height: 50px
+}
+
+.loading span {
+  display: block;
+  position: absolute;
+  border-radius: 5px;
+  width: 50%;
+  height: 50%
+}
+
+.loading span:nth-child(1) {
+  top: 0;
+  left: 0;
+  background-color: rgba(66, 133, 244, 1.75);
+  animation: move1 1s linear infinite
+}
+
+.loading span:nth-child(2) {
+  top: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 1.75);
+  animation: move2 1s linear infinite
+}
+
+.loading span:nth-child(3) {
+  bottom: 0;
+  left: 0;
+  background-color: rgba(244, 180, 0, 1.75);
+  animation: move3 1s linear infinite
+}
+
+@keyframes move1 {
+  0% {
+      transform: translate(0);
+      z-index: 10
+  }
+  25% {
+      transform: translate(100%, 0)
+  }
+  50% {
+      transform: translate(100%, 100%)
+  }
+  75% {
+      transform: translate(0, 100%);
+      z-index: 0
+  }
+  100% {
+      transform: translate(0)
+  }
+}
+
+@keyframes move2 {
+  0% {
+      transform: translate(0)
+  }
+  25% {
+      transform: translate(0, 100%)
+  }
+  50% {
+      transform: translate(-100%, 100%);
+      z-index: 0
+  }
+  75% {
+      transform: translate(-100%, 0);
+      z-index: 10
+  }
+  100% {
+      transform: translate(0)
+  }
+}
+
+@keyframes move3 {
+  0% {
+      transform: translate(0)
+  }
+  25% {
+      transform: translate(0, -100%);
+      z-index: 10
+  }
+  50% {
+      transform: translate(100%, -100%)
+  }
+  75% {
+      transform: translate(100%, 0)
+  }
+  100% {
+      transform: translate(0);
+      z-index: 0
+  }
+}
+
+@keyframes move4 {
+  0% {
+      transform: translate(0)
+  }
+  25% {
+      transform: translate(-100%, 0);
+      z-index: 0
+  }
+  50% {
+      transform: translate(-100%, -100%);
+      z-index: 10
+  }
+  75% {
+      transform: translate(0, -100%)
+  }
+  100% {
+      transform: translate(0)
+  }
+}
+
+.nova-loading {
+  position: fixed;
+  z-index: 2000;
+  height: 2em;
+  width: 2em;
+  overflow: show;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0
+}
+
+.nova-loading:before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .3)
+}

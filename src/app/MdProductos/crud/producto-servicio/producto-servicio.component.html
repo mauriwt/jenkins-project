@@ -1,0 +1,85 @@
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <dx-toolbar>
+        <dxi-item location="before" widget="dxSelectBox" locateInMenu="auto" [options]="filtroServicio">
+        </dxi-item>
+        <dxi-item location="before" widget="dxButton" [options]="addButtonOptions">
+        </dxi-item>
+      </dx-toolbar>
+      <dx-data-grid #gridProcesoServicio [dataSource]="dataSource" noDataText="No hay registros" [allowColumnResizing]="true"
+        [columnAutoWidth]="true" [focusedRowEnabled]="true" [hoverStateEnabled]="true" [showBorders]="true"
+        [showColumnLines]="true" [showRowLines]="true" (onEditingStart)="iniciarEdicion($event)" (onInitNewRow)="nuevoReg($event)">
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+        </dxo-pager>
+        <dxo-editing mode="popup" [allowUpdating]="true">
+          <dxo-texts editRow="Editar registro"></dxo-texts>
+          <dxo-popup titleTemplate="title" [showTitle]="true" [width]="800" [height]="430">
+            <div *dxTemplate="let data of 'title'">
+              <div class="dx-toolbar dx-widget dx-visibility-change-handler dx-collection" role="toolbar">
+                <div class="dx-toolbar-items-container">
+                  <div class="dx-toolbar-before">
+                    <div class="dx-item dx-toolbar-item dx-toolbar-label" style="max-width: 137px;">
+                      <div class="dx-item-content dx-toolbar-item-content">
+                        <div>{{popupTitulo}}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dx-toolbar-center" style="margin: 0px 51px 0px 152px; float: none;"></div>
+                  <div class="dx-toolbar-after">
+                    <div class="dx-item dx-toolbar-item dx-toolbar-button">
+                      <div class="dx-item-content dx-toolbar-item-content">
+                        <dx-button icon="close" (onClick)="cancelar($event)">
+                        </dx-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dxo-popup>
+          <dxo-form [showColonAfterLabel]="true"></dxo-form>
+        </dxo-editing>
+
+        <dxi-column type="text" cellTemplate="indexar" caption="#" disabled="true" [allowEditing]="false"
+          [allowFiltering]="false">
+        </dxi-column>
+        <dxi-column type="buttons" caption="Acción" [width]="70">
+          <dxi-button name="edit"></dxi-button>
+        </dxi-column>
+
+        <dxi-column dataField="IdServicio" [editorOptions]="opcionServicio" dataType="number" caption="Servicio">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxo-lookup [dataSource]="catalogoServicio" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="CodigoProductoOrigen" [editorOptions]="opcionPOrigen" dataType="number" caption="Producto Origen">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxo-lookup [dataSource]="catalogoProducto" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="CodigoPolizaOrigen" [alignment]="'center'" dataType="number" caption="Código de Póliza">
+          <dxi-validation-rule type="stringLength" max="4" message="Máximo de dígitos permitidos 4.">
+          </dxi-validation-rule>
+
+        </dxi-column>
+        <dxi-column dataField="CodigoEntidadBancariaOrigen" [alignment]="'center'" dataType="number" caption="Código Entidad Bancaria Origen">
+          <dxi-validation-rule type="stringLength" max="4" message="Máximo de dígitos permitidos 4.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="CodigoEstablecimientoOrigen" [alignment]="'center'" dataType="string" caption="Código Establecimiento Origen">
+          <dxi-validation-rule type="stringLength" max="10" message="Máximo de dígitos permitidos 10."></dxi-validation-rule>
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxi-validation-rule type="pattern" [pattern]="alfNumerico" message="El campo no permite caracteres especiales."></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="Activo" dataType="boolean">
+        </dxi-column>
+
+        <div class="text-center" *dxTemplate="let data of 'indexar'">
+          <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+        </div>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

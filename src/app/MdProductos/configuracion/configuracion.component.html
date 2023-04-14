@@ -1,0 +1,54 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1">
+    <div class="card">
+        <div class="card-body">
+            <div class="options">
+                <div class="dx-fieldset-header">Opciones de búsqueda:</div>
+                <div class="option">
+                    <p><b>Proveedor</b></p>
+                    <p>
+                        <dx-select-box noDataText="No hay elementos para mostrar" #asegurador placeholder="Seleccione Proveedor" (onSelectionChanged)="getConfiguracionProductos(asegurador.value)" [dataSource]="aseguradoras" displayExpr="Nombre" [searchMode]="searchModeOption"
+                            [searchExpr]="searchExprOption" [searchTimeout]="searchTimeoutOption" [minSearchLength]="minSearchLengthOption" [searchEnabled]="true" [showClearButton]="true">
+                        </dx-select-box>
+                    </p>
+                </div>
+            </div>
+            <dx-data-grid #gridClientes noDataText="No hay registros" id="gridClientes" [dataSource]="dataSource" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [focusedRowEnabled]="true" [allowColumnResizing]="true" [columnResizingMode]="widget"
+                [columnMinWidth]="50" [columnAutoWidth]="true">
+
+                <dxo-export [enabled]="true" fileName="productos"></dxo-export>
+                <dxo-filter-row [visible]="true" [applyFilter]="opcionFiltro"></dxo-filter-row>
+                <dxo-paging [pageSize]="10"></dxo-paging>
+                <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+                </dxo-pager>
+                <dxo-editing mode="row" [allowAdding]="false" [allowUpdating]="allowEditting" [allowDeleting]="false">
+                </dxo-editing>
+                <dxi-column dataField="NombreRamo" caption="#" [allowExporting]="false" [allowFiltering]="false" [allowEditing]="false" cellTemplate="indexar">
+                </dxi-column>
+                <dxi-column type="buttons">
+                    <dxi-button name="edit"></dxi-button>
+                </dxi-column>
+                <dxi-column dataField="NombreRamo" caption="Ramo" [allowEditing]="false">
+                </dxi-column>
+                <dxi-column dataField="NombreProducto" caption="Producto" [allowEditing]="false">
+                </dxi-column>
+                <dxi-column dataField="NumeroPoliza" [alignment]="'center'" [width]="133" caption="Número de Póliza" [allowEditing]="false">
+                </dxi-column>
+                <dxi-column dataField="AdministraProducto" [alignment]="'center'" [width]="150" caption="Administra Producto" dataType="text" [allowFiltering]="false">
+                    <dxo-lookup [dataSource]="catalogo" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+                </dxi-column>
+                <dxi-column dataField="DevuelveProducto" [alignment]="'center'" [width]="140" caption="Devuelve Producto" [allowFiltering]="false">
+                    <dxo-lookup [dataSource]="catalogo" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+                </dxi-column>
+                <dxi-column dataField="RequiereRespaldoCancelacion" [width]="150" caption="Respaldo Cancelación" [allowFiltering]="false">
+                </dxi-column>
+                <dxi-column dataField="RequiereDocumentosFisicosDevolucion" [width]="150" caption="Documentos Devolución" [allowFiltering]="false">
+                </dxi-column>
+
+                <div class="text-center" *dxTemplate="let data of 'indexar'">
+                    <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+                </div>
+            </dx-data-grid>
+        </div>
+    </div>
+</div>

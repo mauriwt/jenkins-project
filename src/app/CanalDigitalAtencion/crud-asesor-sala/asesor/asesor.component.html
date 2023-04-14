@@ -1,0 +1,211 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="pl-4">
+  <ng-container *ngIf="verFrm; else elseTemplate">
+    <label>Identificación</label>
+    <div class="input-group mb-3">
+      <input (keydown.enter)="buscarUsuario(buscador.value)" #buscador type="text" [(ngModel)]="identificacionBusqueda"
+        class="form-control form-control-sm" name="buscarDNI" placeholder="Ingrese la identificación del asesor"
+        aria-label="Ingrese identificación del asesor" aria-describedby="basic-addon2">
+      <div class="input-group-append">
+        <button data-toggle="tooltip" data-placement="top" title="Búscar" (click)="buscarUsuario(buscador.value)"
+          class="btn btn-outline-primary btn-sm" type="button"><i class="fas fa-search"></i></button>
+        <button data-toggle="tooltip" data-placement="top" title="Limpiar" (click)="buscador.value = null"
+          class="btn btn-outline-secondary btn-sm" type="button"><i class="fas fa-undo"></i></button>
+      </div>
+    </div>
+
+    <form id="frmAsesor" #form [formGroup]="frmAsesor" (ngSubmit)="guardarRegistro()" class="form-horizontal"
+      novalidate>
+      <div class="form-row">
+        <div class="form-group col-md-6 col-sm-6 col-6">
+          <fieldset disabled>
+            <label for="IdUsuario" class="control-label required">Nombre del asesor:</label>
+            <select id="IdUsuario" class="form-control form-control-sm" formControlName="IdUsuario"
+              [ngClass]="fieldCss(frmAsesor,'IdUsuario')" required>
+              <option *ngFor="let item of listaUsuario; let i = index" [value]="item.IdUsuario">
+                {{item.PrimerNombre}} {{item.PrimerApellido}}
+              </option>
+            </select>
+            <label *ngIf="isFieldValid(frmAsesor,'IdUsuario')" class="invalid-feedback">
+              {{frmErrorAsesor.IdUsuario}}
+            </label>
+          </fieldset>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="EstadoOcupacion">Estado del asesor:</label>
+          <input readonly upperCase placeholder="Ingrese estado del asesor" type="text" id="EstadoOcupacion"
+            formControlName="EstadoOcupacion" class="form-control form-control-sm"
+            [ngClass]="fieldCss(frmAsesor,'EstadoOcupacion')" required />
+          <label *ngIf="isFieldValid(frmAsesor,'EstadoOcupacion')" class="invalid-feedback">
+            {{frmErrorAsesor.EstadoOcupacion}}
+          </label>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="IdEquipoCanalDigital" class="control-label required">Equipo:</label>
+          <select #equi (change)="confirmLimpiarDetalles(equi.value)" id="IdEquipoCanalDigital"
+            class="form-control form-control-sm" formControlName="IdEquipoCanalDigital"
+            [ngClass]="fieldCss(frmAsesor,'IdEquipoCanalDigital')" required>
+            <option value="" disabled selected>Seleccione un equipo</option>
+            <option *ngFor="let item of listaEquipo; let i = index" [value]="item.IdEquipoCanalDigital">
+              {{item.Nombre}}
+            </option>
+          </select>
+          <label *ngIf="isFieldValid(frmAsesor,'IdEquipoCanalDigital')" class="invalid-feedback">
+            {{frmErrorAsesor.IdEquipoCanalDigital}}
+          </label>
+        </div>
+        <div class="form-group col-md-6 text-center pt-3">
+          <mat-checkbox formControlName="Activo" color="primary">
+            ¿Está activo?
+          </mat-checkbox>
+        </div>
+      </div>
+      <div class="card" style="width: 100%">
+        <div class="card-body">
+          <h5 class="card-title text-center">Detalle Asesor</h5>
+          <div class="alert alert-primary" role="alert">
+            <mat-checkbox matTooltip="SE ASIGNARÁN TODAS LAS ZONAS, RAMOS Y SEGMENTOS AL ASESOR"
+              matTooltipClass="example-tooltip-red" aria-label="Button that shows a red tooltip" class="example-button"
+              color="primary" [formControl]="asignarTodos"><b>Asignar todos</b></mat-checkbox>&nbsp;&nbsp;
+              <button *ngIf="asignarTodos.value" (click)="AsignarTodosReg()" type="button"
+            class="btn btn-primary btn-sm">Agregar</button>
+          </div>
+          <form *ngIf="!asignarTodos.value" id="frmDatoAsesor" #form [formGroup]="frmDatoAsesor"
+            (ngSubmit)="addDatoAsesor()" class="form-horizontal" novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="IdZonaEquipoCanalDigital" class="control-label required">Zona:</label>
+                <select (change)="segmentoSelect()" id="IdZonaEquipoCanalDigital" class="form-control form-control-sm"
+                  formControlName="IdZonaEquipoCanalDigital"
+                  [ngClass]="fieldCss(frmDatoAsesor,'IdZonaEquipoCanalDigital')" required>
+                  <option value="" disabled selected>Seleccione una zona</option>
+                  <option *ngFor="let item of listaZonas; let i = index" [value]="item.IdZonaEquipoCanalDigital">
+                    {{item.NombreZona}}
+                  </option>
+                </select>
+                <label *ngIf="isFieldValid(frmDatoAsesor,'IdZonaEquipoCanalDigital')" class="invalid-feedback">
+                  {{frmErrorDatoAsesor.IdZonaEquipoCanalDigital}}
+                </label>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="CodigoRamo" class="control-label required">Ramo:</label>
+                <select (change)="segmentoSelect()" id="CodigoRamo" class="form-control form-control-sm"
+                  formControlName="CodigoRamo" [ngClass]="fieldCss(frmDatoAsesor,'CodigoRamo')" required>
+                  <option value="" disabled selected>Seleccione un ramo</option>
+                  <option *ngFor="let item of listaRamos; let i = index" [value]="item.Codigo">
+                    {{item.Nombre}}
+                  </option>
+                </select>
+                <label *ngIf="isFieldValid(frmDatoAsesor,'CodigoRamo')" class="invalid-feedback">
+                  {{frmErrorDatoAsesor.CodigoRamo}}
+                </label>
+              </div>
+              <div class="form-group col-md-12">
+                <mat-form-field class="example-full-width">
+                  <mat-label>Segmento</mat-label>
+                  <mat-select #selectSeg formControlName="CodigoSegmento" multiple>
+                    <mat-select-filter *ngIf="selectSeg.focused" placeholder="Buscar" displayMember="Nombre"
+                      [array]="listaSegmentos" (filteredReturn)="segmentosFiltro =$event"></mat-select-filter>
+                    <mat-option *ngFor="let item of segmentosFiltro" [value]="item.Codigo">{{item.Nombre}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <label *ngIf="isFieldValid(frmDatoAsesor,'CodigoSegmento')" class="invalid-feedback">
+                  {{frmErrorDatoAsesor.CodigoSegmento}}
+                </label>
+              </div>
+            </div>
+            <button [disabled]="frmDatoAsesor.invalid" (click)="addDatoAsesor()" type="button"
+              class="btn btn-primary btn-sm">Agregar</button>&nbsp;
+          </form>
+
+          <table class="table table-sm table-hover table-bordered">
+            <thead class="dx-header-row">
+              <tr>
+                <th class="text-center">Acción</th>
+                <th scope="col">Zona</th>
+                <th scope="col">Ramo</th>
+                <th scope="col">Segemento</th>
+                <th scope="col" [width]="75">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="detfila_{{index}}" *ngFor="let item of listaDatoAsesor; let index = index;">
+                <td class="text-center text-primary">
+                  <a mat-button #tooltip="matTooltip" matTooltip="Eliminar Registro"
+                    (click)="eliminarConfirm(item,index)">
+                    <mat-icon color="warn">delete</mat-icon>
+                  </a>
+                </td>
+                <td class="text-center">{{getNombreZona(item.IdZonaEquipoCanalDigital)}}</td>
+                <td class="text-center">{{getNombreRamo(item.CodigoRamo)}} </td>
+                <td class="text-center">{{getNombreSegmento(item.CodigoSegmento)}}</td>
+                <td class="text-center">
+                  <mat-checkbox onclick="return false;" [checked]="item.Activo" color="primary">
+                  </mat-checkbox>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <br>
+      <div class="form-row">
+        <div class="col-md-9 col-sm-9 col-9">
+          <button [disabled]="frmAsesor.invalid || listaDatoAsesor.length === 0" type="submit"
+            class="btn btn-primary btn-sm">Guardar</button>&nbsp;
+          <button (click)="cancelarAsesor()" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+  <ng-template #elseTemplate>
+    <button (click)="abrirMDasesor()" type="button" class="btn btn-primary btn-sm mt-2">Nuevo Registro</button>
+    <button class="float-right" #tooltip="matTooltip" matTooltip="Refrescar Datos" (click)="obtenerAsesores()"
+      mat-icon-button aria-label="Refrescar Datos">
+      <mat-icon color="primary">refresh</mat-icon>
+    </button>
+    <div class="table-responsive mt-2">
+      <table class="table table-sm table-hover table-bordered">
+        <thead class="dx-header-row">
+          <tr>
+            <th class="text-center">Acción</th>
+            <th scope="col">Equipo</th>
+            <th scope="col">Nombre de Asesor</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="asefila_{{index}}" *ngFor="let item of listaAsesor; let index = index;">
+            <td class="text-center text-primary">
+              <a title="Editar" class="dx-icon-edit text-custom puntero" (click)="onEdit(item, index)"></a>
+            </td>
+            <td class="text-center">{{getNombreEquipo(item.IdEquipoCanalDigital)}}</td>
+            <td>{{item.PrimerNombre}} {{item.PrimerApellido}} </td>
+            <td class="text-center">{{item.EstadoOcupacion}}</td>
+            <td class="text-center">
+              <mat-checkbox disabled [checked]="item.Activo" color="primary">
+              </mat-checkbox>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-template>
+
+
+  <div class="modal fade" id="mdAsesor" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{titulo}}</h5>
+        </div>
+        <div class="modal-body tamanio-modal-body">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

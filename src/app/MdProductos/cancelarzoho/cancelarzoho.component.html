@@ -1,0 +1,19 @@
+<div *ngIf="cargando" class="container alert alert-warning alert-dismissible fade show mt-4" role="alert">
+  <h4 class="alert-heading">Creando registro de cancelación</h4>
+  <p>La creación del registro puede tardar unos segundos</p>
+  <hr>
+  <p class="mb-0">Por favor no cierre la ventana.</p>
+  <div class="text-center">
+    <i class="fas fa-spinner fa-pulse fa-3x"></i>
+  </div>
+</div>
+
+<div *ngIf="zohomjs === 'SUCCESS'" class="container alert alert-primary alert-dismissible fade show mt-4" role="alert">
+  <h4 class="alert-heading">Creación finalizada</h4>
+  <p>La cancelación se generó correctamente</p>
+  <hr>
+  <p class="mb-0">Es necesario actualizar la página de <b class='text-danger'>Z</b><b class='text-success'>O</b><b
+      class='text-primary'>H</b><b class='text-warning'>O CRM </b> para visualizar la cancelación.<br> Presione
+    <b>Salir</b> para cerrar de la ventana.</p><br>
+  <button appAutofocus class="btn btn-outline-primary" type="button" (click)="salir()">Salir</button>
+</div>

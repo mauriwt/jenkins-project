@@ -1,0 +1,103 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div *ngIf="nohay==='SI'" class="container alert alert-danger alert-dismissible fade show mt-4" role="alert">
+    <h4 class="alert-heading">No existe!</h4>
+    <p>El cliente que está tratando de encontrar no existe en la base de datos de nova.</p>
+    <hr>
+    <p class="mb-0">Por favor verifica los datos y vuelve a intentar.</p>
+    <p class="mb-0 custom-feedback">Si el error persiste contáctese con el administrador.</p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="mt-4" *ngIf="!isEmptyObject(cliente)">
+    <div class="card">
+        <div class="card-body">
+            <div class="card animated fadeIn fast">
+                <div class="text-center">
+                    <div class="image-container">
+                        <div class="user-image"></div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title"><b>{{cliente.NombreCompleto}}</b></h5>
+                    <h6 class="card-title">{{cliente.Identificacion}}</h6>
+                </div>
+            </div>
+            <br>
+            <dx-data-grid #grid id="gridContainer" noDataText="No hay registros" [allowColumnResizing]="true" [columnAutoWidth]="true"
+                [dataSource]="dataSource" [focusedRowEnabled]="true" keyExpr="IdCertificado" [hoverStateEnabled]="true"
+                [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [selectedRowKeys]="[]"
+                (onRowDblClick)="elementoFila(grid.instance.getSelectedRowsData()[0])" (onRowPrepared)="color($event)">
+
+                <dxo-selection mode="single"></dxo-selection>
+
+                <dxi-column dataField="IdVentaGPS" caption="#" cellTemplate="indexar">
+                </dxi-column>
+
+                <!-- <dxi-column dataField="IdVentaGPS" [width]="80" caption="Documentos" [allowEditing]="false"
+                    cellTemplate="documentos">
+                </dxi-column> -->
+                <dxi-column dataField="IdCertificado" caption="# Certificado" [alignment]="'center'">
+                </dxi-column>
+                <dxi-column dataField="NumeroCertificado" caption="Número Certificado Póliza" [alignment]="'center'">
+                </dxi-column>
+                <dxi-column dataField="NombreProducto" caption="Producto" [sortIndex]="1" sortOrder="asc">
+                </dxi-column>
+                <dxi-column dataField="NombreEstadoVenta" caption="Estado" [sortIndex]="0" sortOrder="desc">
+                </dxi-column>
+                <dxi-column dataField="NombrePlan" caption="Plan">
+                </dxi-column>
+                <dxi-column dataField="NombreFormaPago" caption="Forma Pago"> </dxi-column>
+                <dxi-column dataField="NombrePeriodicidad" caption="Periodicidad"> </dxi-column>
+                <dxi-column dataField="NombreCanalVenta" caption="Canal Vental"> </dxi-column>
+                <dxi-column dataField="NombreSponsor" caption="Sponsor"> </dxi-column>
+                <dxi-column dataField="NumeroPoliza" caption="# Póliza"> </dxi-column>
+                <dxi-column [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }" dataField="FechaVenta" dataType="date" caption="Fecha Venta"> </dxi-column>
+                <dxi-column [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }" dataField="VigenciaDesde" dataType="date" caption="Vigencia Desde "> </dxi-column>
+                <dxi-column [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }" dataField="VigenciaHasta" dataType="date" caption="Vigencia Hasta"> </dxi-column>
+                <dxi-column dataField="NombreVendedor" caption="Vendedor"> </dxi-column>
+                <dxi-column dataField="IdVentaGPS" caption="Número Certificado GPS" [alignment]="'center'">
+                </dxi-column>
+                <!-- <div class="text-center" *dxTemplate="let data of 'documentos'">
+                    <a *ngIf="data.value" class="puntero" (click)="irDocumentos(data.value,'mdDocumentos')">
+                        <i class="text-primary fas fa-eye fa-lg"></i>
+                    </a>
+                </div> -->
+                <div class="text-center" *dxTemplate="let data of 'indexar'">
+                    <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+                </div>
+            </dx-data-grid> <br>
+            <app-detalle-cancelacion *ngIf="!isEmptyObject(cancelacion) && SwitchDevolver"
+                (LimpiarData)="cancelarDevolucion($event)" [DatosCertificado]="cancelacion"></app-detalle-cancelacion>
+            <div class="form-actions" *ngIf="SwitchCancelar">
+                <button class="btn btn-outline-primary" (click)="confirmSave()">Aceptar</button>&#xA0;
+                <button class="btn btn-outline-secondary" (click)="cancelar()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-popup class="popup" [width]="850" [height]="600" [showTitle]="true" title="Information" [dragEnabled]="false"
+    [closeOnOutsideClick]="true" [(visible)]="popupVisible">
+    <div *dxTemplate="let data of 'content'">
+        <iframe width="810" height="500" [src]="urlDocumento | domseguro: false" frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</dx-popup>
+
+<div class="modal fade" id="mdDocumentos" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body tamanio-modal-body">
+                <listaDoc [certificadoDesdeCancelacion]="parametro" [deDonde]="deAqui"></listaDoc>
+            </div>
+            <div class="modal-footer">
+                <button (click)="limpiarIdVentaGps()" type="button" class="btn btn-outline-secondary"
+                    data-dismiss="modal">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

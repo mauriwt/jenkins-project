@@ -1,0 +1,253 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="pl-4">
+  <button (click)="abrirmdEquipo()" type="button" class="btn btn-primary btn-sm mt-2">Nuevo Registro</button>
+  <button class="float-right" #tooltip="matTooltip" matTooltip="Refrescar Datos" (click)="obtenerArbolEquipos()"
+    mat-icon-button aria-label="Refrescar Datos">
+    <mat-icon color="primary">refresh</mat-icon>
+  </button>
+  <a class="float-right" mat-button color="primary" (click)="toggleTableRows()">
+    {{ isTableExpanded ? 'Contraer':'Expandir'}}</a>
+  <div class="table-responsive mt-2">
+    <table mat-table [dataSource]="dataStudentsList" multiTemplateDataRows>
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td [width]="90" class="text-primary text-center" mat-cell *matCellDef="let element; let i = dataIndex;">
+          <a #tooltip="matTooltip" matTooltip="{{element.isExpanded?'Ocultar':'Ver'}} Zonas" mat-button
+            (click)="element.isExpanded = !element.isExpanded">
+            <mat-icon>{{element.isExpanded?'keyboard_arrow_down':'keyboard_arrow_right'}}</mat-icon>
+          </a>
+          <a mat-button #tooltip="matTooltip" matTooltip="Editar Registro" (click)="onEdit(element, i)">
+            <mat-icon class="icon">edit</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="CodigoEquipoCanalDigital">
+        <th mat-header-cell *matHeaderCellDef> Código Equipo </th>
+        <td class="text-center" mat-cell *matCellDef="let element"> {{element.CodigoEquipoCanalDigital}} </td>
+      </ng-container>
+
+
+      <ng-container matColumnDef="Nombre">
+        <th mat-header-cell *matHeaderCellDef> Nombre </th>
+        <td mat-cell *matCellDef="let element"> {{element.Nombre}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Descripcion">
+        <th mat-header-cell *matHeaderCellDef> Descripción </th>
+        <td mat-cell *matCellDef="let element"> {{element.Descripcion}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="MensajeNoDisponibilidad">
+        <th mat-header-cell *matHeaderCellDef> Mensaje para no disponibilidad </th>
+        <td mat-cell *matCellDef="let element"> {{element.MensajeNoDisponibilidad}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="Activo">
+        <th [width]="50" mat-header-cell *matHeaderCellDef> Activo </th>
+        <td class="text-center" mat-cell *matCellDef="let element">
+          <mat-checkbox color="primary" class="example-margin" [checked]="element.Activo" onclick="return false;">
+          </mat-checkbox>
+        </td>
+      </ng-container>
+
+
+      <!-- Template for details row -->
+      <ng-container matColumnDef="expandedDetail">
+        <td mat-cell *matCellDef="let element; let idx= dataIndex" [attr.colspan]="displayedStudentsColumnsList.length">
+
+          <div class="row student-element-detail" [@detailExpand]="element.isExpanded ? 'expanded' : 'collapsed'">
+            <div class="radio" mat-subheader>Zonas {{element.Nombre}}
+              <button #tooltip="matTooltip" matTooltip="Agregar Zona" (click)="nuevaZona(idx)" mat-icon-button
+                aria-label="Add Zona">
+                <mat-icon color="primary">add_circle_outline</mat-icon>
+              </button>
+            </div>
+            <table class="zonas" mat-table [dataSource]="element.ZonaEquipos" multiTemplateDataRows>
+
+              <ng-container matColumnDef="Acciones">
+                <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                <td [width]="90" class="text-primary text-center" mat-cell
+                  *matCellDef="let element; let idxz = dataIndex;">
+                  <a mat-button #tooltip="matTooltip" matTooltip="Editar Registro" (click)="editarZona(idx, idxz)">
+                    <mat-icon class="icon">edit</mat-icon>
+                  </a>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="NombreZona">
+                <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                <td class="text-center" mat-cell *matCellDef="let element"> {{element.NombreZona}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Provincia">
+                <th mat-header-cell *matHeaderCellDef> Provincia </th>
+                <td mat-cell *matCellDef="let element">
+                  <ul>
+                    <li *ngFor="let item of element.ZonaUbicaciones">
+                      <mat-checkbox onclick="return false;" [checked]="item.Activo" color="primary">
+                        {{getNombreProvincia(item.IdUbicacionGeografica)}}
+                      </mat-checkbox>
+                    </li>
+                  </ul>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Activo">
+                <th [width]="50" mat-header-cell *matHeaderCellDef> Activo </th>
+                <td class="text-center" mat-cell *matCellDef="let element">
+                  <mat-checkbox color="primary" class="example-margin" [checked]="element.Activo"
+                    onclick="return false;"></mat-checkbox>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="columnsZonas;sticky: true"></tr>
+              <tr mat-row *matRowDef="let element; columns: columnsZonas;"></tr>
+            </table>
+          </div>
+
+        </td>
+      </ng-container>
+
+
+      <tr mat-header-row *matHeaderRowDef="displayedStudentsColumnsList;sticky: true"></tr>
+      <tr mat-row *matRowDef="let element; columns: displayedStudentsColumnsList;" class="student-element-row"
+        [class.student-expanded-row]="element.isExpanded"></tr>
+
+      <!-- Extra row to show detail content column -->
+      <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="student-detail-row"></tr>
+
+    </table>
+
+  </div>
+  <div class="modal fade" id="mdEquipo" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{titulo}}</h5>
+        </div>
+        <div class="modal-body tamanio-modal-body">
+          <form id="frmEquipo" #form [formGroup]="frmEquipo" (ngSubmit)="guardarRegistro()" class="form-horizontal"
+            novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-6 col-sm-6 col-6">
+                <label for="CodigoEquipoCanalDigital" class="control-label required">Código de equipo:</label>
+                <input [maxlength]="16" upperCase placeholder="Ingrese código del equipo" type="text"
+                  id="CodigoEquipoCanalDigital" formControlName="CodigoEquipoCanalDigital"
+                  class="form-control form-control-sm" [ngClass]="fieldCss(frmEquipo,'CodigoEquipoCanalDigital')"
+                  required />
+                <label *ngIf="isFieldValid(frmEquipo,'CodigoEquipoCanalDigital')" class="invalid-feedback">
+                  {{frmErrorEquipo.CodigoEquipoCanalDigital}}
+                </label>
+              </div>
+              <div class="form-group col-md-6 col-sm-6 col-6">
+                <label for="NombreSa" class="control-label required">Nombre de equipo:</label>
+                <input upperCase placeholder="Ingrese nombre del equipo" type="text" id="NombreSa"
+                  formControlName="Nombre" class="form-control form-control-sm" [ngClass]="fieldCss(frmEquipo,'Nombre')"
+                  required />
+                <label *ngIf="isFieldValid(frmEquipo,'Nombre')" class="invalid-feedback">
+                  {{frmErrorEquipo.Nombre}}
+                </label>
+              </div>
+              <div class="form-group col-md-6">
+                <label for="Descripcion">Descripción:</label>
+                <input upperCase placeholder="Ingrese descripción" type="text" id="Descripcion"
+                  formControlName="Descripcion" class="form-control form-control-sm"
+                  [ngClass]="fieldCss(frmEquipo,'Descripcion')" />
+                <label *ngIf="isFieldValid(frmEquipo,'Descripcion')" class="invalid-feedback">
+                  {{frmErrorEquipo.Descripcion}}
+                </label>
+              </div>
+              <div class="form-group col-md-6 col-sm-6 col-6">
+                <label for="EmailResponsable" class="control-label required">Email Responsable:</label>
+                <input placeholder="Ingrese email del responsable" type="text" id="EmailResponsable"
+                  formControlName="EmailResponsable" class="form-control form-control-sm"
+                  [ngClass]="fieldCss(frmEquipo,'EmailResponsable')" required />
+                <label *ngIf="isFieldValid(frmEquipo,'EmailResponsable')" class="invalid-feedback">
+                  {{frmErrorEquipo.EmailResponsable}}
+                </label>
+              </div>
+              <div class="form-group col-md-6 col-sm-6 col-6">
+                <label for="TiempoMaximoAtencionLlamada" class="control-label required">Tiempo Maximo de Atencion de
+                  Llamada:</label>
+                <input upperCase placeholder="Ingrese tiempo máximo de atención de llamada" type="number"
+                  id="TiempoMaximoAtencionLlamada" formControlName="TiempoMaximoAtencionLlamada"
+                  class="form-control form-control-sm" [ngClass]="fieldCss(frmEquipo,'TiempoMaximoAtencionLlamada')"
+                  required />
+                <label *ngIf="isFieldValid(frmEquipo,'TiempoMaximoAtencionLlamada')" class="invalid-feedback">
+                  {{frmErrorEquipo.TiempoMaximoAtencionLlamada}}
+                </label>
+              </div>
+              <div class="form-group col-md-6 col-sm-6 col-6">
+                <label for="TiempoMaximoDuracionLlamada" class="control-label required">Tiempo Maximo de Duracion de
+                  Llamada:</label>
+                <input upperCase placeholder="Ingrese tiempo máximo duración llamada" type="number"
+                  id="TiempoMaximoDuracionLlamada" formControlName="TiempoMaximoDuracionLlamada"
+                  class="form-control form-control-sm" [ngClass]="fieldCss(frmEquipo,'TiempoMaximoDuracionLlamada')"
+                  required />
+                <label *ngIf="isFieldValid(frmEquipo,'TiempoMaximoDuracionLlamada')" class="invalid-feedback">
+                  {{frmErrorEquipo.TiempoMaximoDuracionLlamada}}
+                </label>
+              </div>
+
+              <div class="form-group col-md-9">
+                <label for="MensajeNoDisponibilidad" class="control-label required">Mensaje no
+                  disponible:</label>&nbsp;&nbsp;&nbsp; {{contador()}}
+                <textarea maxlength="1000" placeholder="Ingrese mensaje" formControlName="MensajeNoDisponibilidad"
+                  class="form-control form-control-sm" rows="4" id="MensajeNoDisponibilidad"
+                  [ngClass]="fieldCss(frmEquipo,'MensajeNoDisponibilidad')" required></textarea>
+                <label *ngIf="isFieldValid(frmEquipo,'MensajeNoDisponibilidad')" class="invalid-feedback">
+                  {{frmErrorEquipo.MensajeNoDisponibilidad}}
+                </label>
+              </div>
+              <div class="form-group col-md-3 pt-5 pl-3">
+                <mat-checkbox formControlName="Activo" color="primary">
+                  ¿Está activo?
+                </mat-checkbox>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-9 col-sm-9 col-9">
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>&nbsp;
+                <button (click)="cancelarEquipo()" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="mdZona" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{titulo}}</h5>
+        </div>
+        <div class="modal-body tamanio-modal-body">
+          <form id="frmZona" #frmzona [formGroup]="frmZonas" (ngSubmit)="guardar()" class="form-horizontal" novalidate>
+            <div class="form-row">
+              <mat-form-field class="example-full-width">
+                <mat-label>Nombre Zona:</mat-label>
+                <input upperCase matInput placeholder="Ingrese el nombre de la Zona" formControlName="NombreZona"
+                  required>
+              </mat-form-field>
+              <mat-form-field class="example-full-width">
+                <mat-label>Provincias</mat-label>
+                <mat-select formControlName="Provincias" multiple>
+                  <mat-option *ngFor="let item of listaProvincias" [value]="item.Codigo">{{item.Nombre}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <div class="col-md-9 col-sm-9 col-9">
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>&nbsp;
+                <button (click)="cancelarZona()" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

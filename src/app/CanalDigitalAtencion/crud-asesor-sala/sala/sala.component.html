@@ -1,0 +1,115 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="pl-4">
+  <button (click)="abrirmdSala()" type="button" class="btn btn-primary btn-sm mt-2">Nuevo Registro</button>
+  <button class="float-right" #tooltip="matTooltip" matTooltip="Refrescar Datos" (click)="obtenerSalas()"
+    mat-icon-button aria-label="Refrescar Datos">
+    <mat-icon color="primary">refresh</mat-icon>
+  </button>
+  <div class="table-responsive mt-2">
+    <table class="table table-sm table-hover table-bordered">
+      <thead class="dx-header-row">
+        <tr>
+          <th class="text-center">Acción</th>
+          <th scope="col">Equipo</th>
+          <th scope="col">Código Sala</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">URL Sala</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Activo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="safila_{{index}}" *ngFor="let item of listaSalas; let index = index;">
+          <td class="text-center text-primary">
+            <a title="Editar" class="dx-icon-edit text-custom puntero" (click)="onEdit(item, index)"></a>
+          </td>
+          <td class="text-center">{{getNombreEquipo(item.IdEquipoCanalDigital)}}</td>
+          <td class="text-center">{{item.CodigoSalaCanalDigital}}</td>
+          <td class="text-center">{{item.Nombre}}</td>
+          <td>{{item.URLSala}}</td>
+          <td class="text-center">{{item.EstadoOcupacion}}</td>
+          <td class="text-center">
+            <mat-checkbox disabled [checked]="item.Activo" color="primary">
+            </mat-checkbox>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="modal fade" id="mdSala" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{titulo}}</h5>
+        </div>
+        <div class="modal-body tamanio-modal-body">
+          <form id="frmSala" #form [formGroup]="frmSala" (ngSubmit)="guardarRegistro()" class="form-horizontal"
+            novalidate>
+            <div class="form-row">
+              <div class="form-group col-md-12 col-sm-12 col-12">
+                <label for="Nombre" class="control-label required">Nombre de sala:</label>
+                <input upperCase placeholder="Ingrese nombre de la sala" type="text" id="Nombre"
+                  formControlName="Nombre" class="form-control form-control-sm" [ngClass]="fieldCss(frmSala,'Nombre')"
+                  required />
+                <label *ngIf="isFieldValid(frmSala,'Nombre')" class="invalid-feedback">
+                  {{frmErrorSala.Nombre}}
+                </label>
+              </div>
+              <div class="form-group col-md-12">
+                <label for="CodigoSalaCanalDigital" class="control-label required">Código de sala:</label>
+                <input [maxlength]="16" upperCase placeholder="Ingrese código de la sala" type="text"
+                  id="CodigoSalaCanalDigital" formControlName="CodigoSalaCanalDigital"
+                  class="form-control form-control-sm" [ngClass]="fieldCss(frmSala,'CodigoSalaCanalDigital')"
+                  required />
+                <label *ngIf="isFieldValid(frmSala,'CodigoSalaCanalDigital')" class="invalid-feedback">
+                  {{frmErrorSala.CodigoSalaCanalDigital}}
+                </label>
+              </div>
+              <div class="form-group col-md-12">
+                <label for="IdEquipoSala" class="control-label required">Equipo:</label>
+                <select id="IdEquipoSala" class="form-control form-control-sm" formControlName="IdEquipoCanalDigital"
+                  [ngClass]="fieldCss(frmSala,'IdEquipoCanalDigital')" required>
+                  <option value="" disabled selected>Seleccione un equipo</option>
+                  <option *ngFor="let item of listaEquipo; let i = index" [value]="item.IdEquipoCanalDigital">
+                    {{item.Nombre}}
+                  </option>
+                </select>
+                <label *ngIf="isFieldValid(frmSala,'IdEquipoCanalDigital')" class="invalid-feedback">
+                  {{frmErrorSala.IdEquipoCanalDigital}}
+                </label>
+              </div>
+              <div class="form-group col-md-12">
+                <label for="URLSala" class="control-label required">URL de sala:</label>
+                <input placeholder="Ingrese URL de la sala" type="text" id="URLSala" formControlName="URLSala"
+                  class="form-control form-control-sm" [ngClass]="fieldCss(frmSala,'URLSala')" required />
+                <label *ngIf="isFieldValid(frmSala,'URLSala')" class="invalid-feedback">
+                  {{frmErrorSala.URLSala}}
+                </label>
+              </div>
+              <div class="form-group col-md-12">
+                <label for="EstadoOcupacionSala">Estado de sala:</label>
+                <input readonly upperCase placeholder="Ingrese estado de la sala" type="text" id="EstadoOcupacionSala"
+                  formControlName="EstadoOcupacion" class="form-control form-control-sm"
+                  [ngClass]="fieldCss(frmSala,'EstadoOcupacion')" required />
+                <label *ngIf="isFieldValid(frmSala,'EstadoOcupacion')" class="invalid-feedback">
+                  {{frmErrorSala.EstadoOcupacion}}
+                </label>
+              </div>
+              <div class="form-group col-md-12 pl-3">
+                <mat-checkbox formControlName="Activo" color="primary">
+                  ¿Está activo?
+                </mat-checkbox>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="col-md-9 col-sm-9 col-9">
+                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>&nbsp;
+                <button (click)="cancelarSala()" type="button" class="btn btn-secondary btn-sm">Cancelar</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

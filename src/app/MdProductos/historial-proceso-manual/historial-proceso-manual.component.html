@@ -1,0 +1,87 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="row p-4">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">    
+
+    <form #f id="frmBuscar" [formGroup]="formulario" (ngSubmit)="confirmarEncriptacion()">
+      <div class="form-row">
+        <div class="form-group col-lg-12 input-group-sm">
+          <label for="file">
+            <b>
+              Cargar Archivo :
+              <label class="text-danger">*</label>
+            </b>
+
+          </label>
+          <div class="form-group">
+            <div class="custom-file">
+              <input lang="es" accept="text/plain" type="file" formControlName="file" (change)="setArchivo($event)"
+                     class="custom-file-input puntero" id="customFileLang"
+                     [ngClass]="fieldCss(formulario,'file')">
+              <label class="custom-file-label" for="customFileLang">{{fileName}}</label>
+              <label *ngIf="isFieldValid(formulario,'file')" class="invalid-feedback">
+                {{formErrors.file}}
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <button type="submit" class="btn btn-outline-primary">Encriptar</button>&nbsp;
+      <button type="button" (click)="limpiar()" class="btn btn-outline-primary">Limpiar</button>&nbsp;
+    </form>
+
+  </div>
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <br>
+    <dx-data-grid #grid id="gridContainer" noDataText="No hay registros" [allowColumnResizing]="true"
+                  [columnAutoWidth]="true" [dataSource]="dataSource" keyExpr="Id" [focusedRowEnabled]="false"
+                  [hoverStateEnabled]="true" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true">
+
+      <dxo-paging [pageSize]="20"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20, 50, 100]" [showInfo]="true">
+      </dxo-pager>
+
+      <dxo-filter-row [visible]="true" [applyFilter]="opcionFiltro"></dxo-filter-row>
+      <dxi-column dataField="Id" caption="#" cellTemplate="indexar"
+                  [allowFiltering]="false">
+      </dxi-column>
+
+      <dxi-column dataField="Error" caption="Error?">
+      </dxi-column>
+
+      <dxi-column dataField="TipoPago" caption="Tipo Pago">
+      </dxi-column>
+      <dxi-column dataField="NumeroCuenta" caption="Número cuenta">
+      </dxi-column>
+      <dxi-column dataField="Fijo1" caption="Fijo1">
+      </dxi-column>
+      <dxi-column dataField="Fijo2" caption="Fijo2">
+      </dxi-column>
+      <dxi-column dataField="Contrapartida" caption="Contrapartida">
+      </dxi-column>
+      <dxi-column dataField="Moneda" caption="Moneda">
+      </dxi-column>
+      <dxi-column dataField="ValorDevolver" caption="Valor devolver">
+      </dxi-column>
+      <dxi-column dataField="FormaPago" caption="Forma pago">
+      </dxi-column>
+      <dxi-column dataField="CodigoBanco" caption="Codigo banco">
+      </dxi-column>
+      <dxi-column dataField="TipoCuenta" caption="Tipo cuenta">
+      </dxi-column>
+      <dxi-column dataField="NumeroCuentaBeneficiario" caption="Número cuenta beneficiario">
+      </dxi-column>
+      <dxi-column dataField="TipoDocumento" caption="Tipo documento">
+      </dxi-column>
+      <dxi-column dataField="NumeroDocumento" caption="Número documento">
+      </dxi-column>
+      <dxi-column dataField="NombreBeneficiario" caption="Nombre beneficiario">
+      </dxi-column>
+
+      <div class="text-center" *dxTemplate="let data of 'indexar'">
+        <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+      </div>
+
+    </dx-data-grid>
+  </div>
+</div>

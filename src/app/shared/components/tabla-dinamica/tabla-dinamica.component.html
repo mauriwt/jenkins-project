@@ -1,0 +1,7 @@
+<dx-data-grid #gridDinamico noDataText="No hay registros" id="gridDinamico" [dataSource]="registros" keyExpr="Id"
+  [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" [focusedRowEnabled]="true"
+  [allowColumnResizing]="true" [columnResizingMode]="'widget'" [columnMinWidth]="50" [columnAutoWidth]="true">
+  <dxo-paging [pageSize]="20"></dxo-paging>
+  <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+  </dxo-pager>
+</dx-data-grid>

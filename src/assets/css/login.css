@@ -1,0 +1,240 @@
+img.user-icon {
+    padding-top: 20px;
+  }
+
+  img.nova-logo {
+    padding-bottom: 0;
+  }
+
+  .login-form {
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .form-separator {
+    border-top: solid #9f9f9f 1px;
+  }
+
+  .toolPassword:focus {
+    border-color: #979797;
+    outline: 0;
+    box-shadow: unset !important;
+  }
+
+  .welcome-title {
+    font-size: 30px;
+    font-weight: bold;
+    color: #0066cc;
+    margin-bottom: 18px;
+  }
+
+  .welcome-info {
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+
+  .toolPasswordIcon {
+    position: absolute;
+    right: 10px;
+    color: #05c325;
+    font-size: 16px;
+    top: 38px;
+    display: none;
+  }
+
+  .tooltip-inner {
+    padding: 3px 8px;
+    padding: 10px;
+    color: #ffffff;
+    font-size: 12px;
+    text-align: center;
+    position: relative;
+    width: 100%;
+    min-width: 260px;
+    background-color: #0066cc;
+    border-radius: 0.25rem;
+  }
+
+  .tooltip.bs-tooltip-auto[x-placement^='bottom'] .arrow::before,
+  .tooltip.bs-tooltip-bottom .arrow::before {
+    margin-left: -3px;
+    content: '';
+    border-width: 0 5px 5px;
+    border-bottom-color: #0066cc;
+  }
+
+  .eyeIcon {
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    color: #0066cc;
+    font-size: 16px;
+    top: 38px;
+  }
+
+  .update-data-title {
+    font-size: 16px;
+    margin-top: 5px;
+    margin-bottom: 20px;
+  }
+
+  .login-form input {
+    font-size: 13px;
+    border: solid #979797 1px;
+    border-radius: 8px;
+  }
+
+  .mt-30 {
+    margin-top: 30px;
+  }
+
+  .mt-15 {
+    margin-top: 15px;
+  }
+
+  p.sign-in {
+    margin-top: 10px;
+    color: #1774d0;
+    font-weight: bold;
+    line-height: 1;
+  }
+
+  .custom {
+    border: solid #979797 1px;
+    border-radius: 8px;
+  }
+
+  a.forgot-password {
+    color: #212529;
+    font-size: 12px;
+    text-decoration: underline;
+  }
+
+  a.sign-here {
+    color: #212529;
+  }
+
+  a.sign-here:hover {
+    text-decoration: none;
+  }
+
+  p.not-registered {
+    font-size: 12px;
+  }
+
+  button.send-btn {
+    text-transform: uppercase;
+    border-radius: 8px;
+    background: #0066cc;
+    padding: 7px 12px;
+    font-size: 14px;
+  }
+
+  .custom-msg {
+    color: #cc0000;
+    font-size: 12px;
+    display: none;
+  }
+
+  .mb5 {
+    margin-bottom: 5px;
+  }
+
+  label.text-error {
+    color: #cc0000;
+  }
+
+  input.text-error {
+    border: solid #cc0000 1px;
+  }
+
+  .display-error {
+    display: block !important;
+  }
+
+  p.password-lost-info {
+    color: #000000;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 500;
+  }
+
+  /*****MODAL STYLES ****/
+  .modal-content {
+    border-radius: 0;
+  }
+
+  .modal-box {
+    margin: auto;
+  }
+
+  .modal-header {
+    border-bottom: 0;
+    padding: 0;
+  }
+
+  .modal-header .close {
+    position: absolute;
+    right: 30px;
+    top: 20px;
+    opacity: 0;
+  }
+
+  .modal-header .close:hover {
+    opacity: 0 !important;
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .modal-intro {
+    text-transform: uppercase;
+    font-size: 16px;
+    font-weight: bold;
+    color: #0066cc;
+  }
+
+  .call-number {
+    font-size: 40px;
+    color: #4a4a4a;
+  }
+
+  .our-schedules {
+    font-size: 16px;
+    line-height: 1.19;
+    letter-spacing: 0.7px;
+    color: #000000;
+    font-weight: 600;
+  }
+
+  .schedules {
+    font-size: 16px;
+    line-height: 1.19;
+    letter-spacing: 0.7px;
+    color: #000000;
+  }
+
+  .external-url {
+    font-size: 18px;
+    color: #0066cc;
+    line-height: 1.06;
+    letter-spacing: 0.8px;
+    font-weight: bold;
+  }
+
+  @media screen and (max-width: 480px) {
+    .modal-header .close:hover {
+      right: 20px;
+      top: 15px;
+      padding: 10px;
+    }
+
+    .call-number {
+      font-size: 25px;
+    }
+
+    .external-url {
+      font-size: 14px;
+    }
+  }

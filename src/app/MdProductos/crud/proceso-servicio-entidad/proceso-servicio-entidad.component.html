@@ -1,0 +1,137 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <dx-toolbar>
+        <dxi-item location="before" widget="dxSelectBox" locateInMenu="auto" [options]="selectBoxOptions">
+        </dxi-item>
+        <dxi-item location="before" widget="dxButton" [options]="addButtonOptions">
+        </dxi-item>
+      </dx-toolbar>
+      <dx-data-grid #gridProcesoServicio [dataSource]="dataSource" noDataText="No hay registros"
+        [allowColumnResizing]="true" [columnAutoWidth]="true" [focusedRowEnabled]="true" [hoverStateEnabled]="true"
+        [showBorders]="true" [showColumnLines]="true" [showRowLines]="true" (onEditingStart)="iniciarEdicion($event)">
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-paging [pageSize]="20"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+        </dxo-pager>
+        <dxi-column type="text" cellTemplate="indexar" caption="#" disabled="true" [allowEditing]="false"
+          [allowFiltering]="false">
+        </dxi-column>
+        <dxi-column type="text" caption="Acción" cellTemplate="boton" [width]="70">
+
+        </dxi-column>
+        <dxi-column dataField="Proceso" dataType="string" caption="Proceso">
+        </dxi-column>
+        <dxi-column dataField="Entidad" dataType="string" caption="Entidad Origen">
+        </dxi-column>
+        <dxi-column dataField="Servicio" dataType="string" caption="Servicio">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="Orden" dataType="number" [alignment]="'center'" caption="Orden">
+        </dxi-column>
+        <dxi-column dataField="Activo" dataType="boolean">
+        </dxi-column>
+
+        <div class="text-center" *dxTemplate="let data of 'indexar'">
+          <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+        </div>
+        <div class="text-center" *dxTemplate="let data of 'boton'">
+          <a title="Editar Registro" class="dx-icon-edit text-custom puntero"
+            (click)="obtenerServioPorIdProceso(data)"></a>
+        </div>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>
+
+<dx-popup [width]="900" [height]="325" [showTitle]="true" [(title)]="titulo" [dragEnabled]="true"
+  [closeOnOutsideClick]="false" [(visible)]="isPopupVisible">
+  <div *dxTemplate="let data of 'content'">
+    <form id="frmTurno" #form="ngForm" (ngSubmit)="confirmSave()" class="form-horizontal" novalidate>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="dx-field-item-label dx-field-item-label-location-top" for="IdProceso">
+            <span class="dx-field-item-label-content">
+              <span class="dx-field-item-label-text">Proceso:</span>
+              <span class="dx-field-item-required-mark">&nbsp;*</span>
+            </span>
+          </label>
+          <dx-select-box id="IdProceso" #paisd name="IdProceso" [(ngModel)]="procesoServicioEntidad.IdProceso"
+            placeholder="Seleccione Proceso" (onSelectionChanged)="getCatalosHijos(paisd.value)"
+            [dataSource]="catalogoProceso" valueExpr="Codigo" displayExpr="Nombre" [searchMode]="searchModeOption"
+            [searchExpr]="searchExprOption" [searchTimeout]="searchTimeoutOption"
+            [minSearchLength]="minSearchLengthOption" [searchEnabled]="true" [showClearButton]="true">
+            <dx-validator>
+              <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+        <div class="form-group col-lg-6 col-md-6">
+          <label class="dx-field-item-label dx-field-item-label-location-top" for="IdEntidadOrigen">
+            <span class="dx-field-item-label-content">
+              <span class="dx-field-item-label-text">Entidad Origen:</span>
+              <span class="dx-field-item-required-mark">&nbsp;*</span>
+            </span>
+          </label>
+          <dx-select-box id="IdEntidadOrigen" name="IdEntidadOrigen"
+            [(ngModel)]="procesoServicioEntidad.IdEntidadOrigen" placeholder="Seleccione Entidad Origen"
+            [dataSource]="catalogoEntidad" valueExpr="Codigo" displayExpr="Nombre" [searchMode]="searchModeOption"
+            [searchExpr]="searchExprOption" [searchTimeout]="searchTimeoutOption"
+            [minSearchLength]="minSearchLengthOption" [searchEnabled]="true" [showClearButton]="true">
+            <dx-validator>
+              <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="dx-field-item-label dx-field-item-label-location-top" for="IdServicio">
+            <span class="dx-field-item-label-content">
+              <span class="dx-field-item-label-text">Servicio:</span>
+              <span class="dx-field-item-required-mark">&nbsp;*</span>
+            </span>
+          </label>
+          <dx-select-box id="IdServicio" #provincia name="IdServicio" placeholder="Seleccione Servicio"
+            [(ngModel)]="procesoServicioEntidad.IdServicio" [dataSource]="catalogoServicio" valueExpr="Codigo"
+            displayExpr="Nombre" [searchMode]="searchModeOption" [searchExpr]="searchExprOption"
+            [searchTimeout]="searchTimeoutOption" [minSearchLength]="minSearchLengthOption" [searchEnabled]="true"
+            [showClearButton]="true">
+            <dx-validator>
+              <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+        <div class="form-group col-md-3">
+          <label class="dx-field-item-label dx-field-item-label-location-top" for="activo">
+            <span class="dx-field-item-label-content">
+              <span class="dx-field-item-label-text">Orden:</span>
+            </span>
+          </label>
+          <dx-number-box id="Orden" name="Orden" [(ngModel)]="procesoServicioEntidad.Orden" [showSpinButtons]="true" [showClearButton]="true">
+            <dx-validator>
+              <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+            </dx-validator>
+          </dx-number-box>
+        </div>
+        <div class="form-group col-md-1"></div>
+        <div class="form-group col-md-2">
+          <label class="dx-field-item-label dx-field-item-label-location-top" for="activo">
+            <span class="dx-field-item-label-content">
+              <span class="dx-field-item-label-text">Activo:</span>
+            </span>
+          </label>
+          <dx-check-box id="activo" name="Activo" [(ngModel)]="procesoServicioEntidad.Activo"></dx-check-box>
+        </div>
+      </div>
+      <div class="float-right">
+        <dx-button stylingMode="text" text="GUARDAR" type="default" [width]="120" [useSubmitBehavior]="true">
+        </dx-button>
+        <dx-button stylingMode="text" text="CANCELAR" type="default" [width]="120" (onClick)="cancelar()">
+        </dx-button>
+      </div>
+    </form>
+  </div>
+</dx-popup>

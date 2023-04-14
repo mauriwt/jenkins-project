@@ -1,0 +1,81 @@
+<wt-shuyai *ngIf="gcargando"></wt-shuyai>
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3 {{deDonde==='CERT' || deDonde === 'SOLCANC' ? 'mt-2':''}} text-center">
+                    <h4>Documentos</h4>
+                </div>
+                <div class="col-md-6">
+                    <fieldset>
+                        <label *ngIf="deDonde==='CERT' || deDonde === 'SOLCANC'"><b>Nro. de Certificado:</b> {{labelCertificado}} </label>
+                    </fieldset>
+                    <fieldset>
+                        <label> <b>Cliente:</b> {{documento.ReferenciaExterna}} - {{documento.Nombre}} </label>
+                    </fieldset>
+                </div>
+                <div class="col-md-3 {{deDonde==='CERT' || deDonde === 'SOLCANC' ? 'mt-3':''}} text-center">
+                    <i *ngIf="documento.ReferenciaNegocio" class="fas fa-plus-circle fa-2x text-primary puntero"
+                        (click)="abrirVentana('mdCargaDocumento')"></i>
+                </div>
+            </div>
+            <hr class="simple">
+            <table class="table table-sm table-hover table-bordered">
+                <thead class="dx-header-row">
+                    <tr>
+                        <th>#</th>
+                        <th class="text-center" colspan=" 3">Acciones</th>
+                        <th scope="col">Tipo</th>
+                        <th scope="col">Fecha</th>
+                        <th scope="col">Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="filatelf_{{index}}" *ngFor="let item of listaDocCliente; let index = index;">
+                        <td class="text-center"><b>{{index + 1}}</b></td>
+                        <td class="text-center">
+                            <a *ngIf="item.PermiteActualizar" class="puntero text-primary"
+                                (click)="editar(item,'mdCargaDocumento')"><i class="fas fa-pencil-alt"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a title="Ver Documento" class="puntero text-primary"
+                                (click)="verDocumento(item.UrlDirectorio, item.DescripcionDocumento)"><i class="fas fa-eye"></i></a>
+                        </td>
+                        <td class="text-center">
+                            <a *ngIf="item.PermiteEliminar" title="Eliminar" class="puntero text-primary"
+                                (click)="eliminar(item.IdImpresion)"><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                        <td>{{item.Nombre}}</td>
+                        <td>{{item.Fecha}}</td>
+                        <td>
+                            {{item.DescripcionDocumento}}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="mdCargaDocumento" role="dialog" data-keyboard="false" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{docEdit.IdCatalogo ? 'Modificar': 'Cargar'}} Documento</h5>
+            </div>
+            <div class="modal-body tamanio-modal-body">
+                <app-frm-documento [deDonde]="deDonde" (subirOK)="recargarGrid($event)" [documento]="documento"
+                    [docTmp]="docEdit">
+                </app-frm-documento>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dx-popup class="popup" [width]="850" [height]="600" [showTitle]="true" title="{{modalHearder}}" [dragEnabled]="false"
+    [closeOnOutsideClick]="false" [(visible)]="popupVisible">
+    <div *dxTemplate="let data of 'content'">
+        <iframe width="810" height="500" [src]="urlDocumento | domseguro: false" frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+</dx-popup>

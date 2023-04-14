@@ -1,0 +1,772 @@
+<wt-shuyai *ngIf="cargarFv || cargando || cargandoCata || cargarDetalle"></wt-shuyai>
+<form id="frmTurno" #form [formGroup]="formulario" (ngSubmit)="confirmSave()" class="form-horizontal">
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <h5>Información {{esEmpresa ? 'Empresa':'Cliente'}} </h5>
+    </div>
+    <div class="form-group col-md-6">
+      <div class="form-row">
+        <div class="col-md-3">
+          <label>¿Es empresa?</label>
+        </div>
+        <div class="col-md-4">
+          <fieldset [disabled]="soloLecturaCheck">
+            <div class="onoffswitch">
+              <input type="checkbox" formControlName="EsEmpresa" class="onoffswitch-checkbox" id="myonoffswitch"
+                [checked]="formulario.get('EsEmpresa').value" (change)="isEmpresa(formulario.get('EsEmpresa').value)"
+                [readonly]="soloLecturaCheck">
+              <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <mat-divider></mat-divider><br>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <fieldset [disabled]="soloLectura">
+        <label for="tidentificacion" class="control-label required">Tipo de
+          identificación:</label>
+        <select class="form-control" (change)="cambiarTipoIdentificacion()" formControlName="TipoIdentificacion"
+          id="tidentificacion" [ngClass]="fieldCss(formulario,'TipoIdentificacion')">
+          <option value="" selected disabled>Seleccione un elemento...</option>
+          <option *ngFor="let ti of listaCambiante; let i = index" [value]="ti.Codigo">
+            {{ti.Nombre}}
+          </option>
+        </select>
+        <label *ngIf="isFieldValid(formulario,'TipoIdentificacion')" class="invalid-feedback">
+          {{formErrors.TipoIdentificacion}}
+        </label>
+      </fieldset>
+    </div>
+
+    <div class="form-group col-md-6">
+      <fieldset [disabled]="tieneTipoId()">
+        <label for="Identificacionp">Identificación: <b class="text-danger">*</b> &nbsp;
+          <a *ngIf="verBoton()" appCambiarColor class="form-control" class="puntero" (click)="verDuplicidad()"
+            matTooltip="Validar duplicidad">
+            <i class="fas fa-search"></i>&nbsp;
+            <i class="fas fa-long-arrow-alt-right"></i>&nbsp;
+            <i class="fas fa-database"></i>
+          </a><span class="verdoble-feedback" *ngIf="!estaVacio(mensajeValidar)">
+            {{mensajeValidar.valor}}
+          </span></label>
+        <input [attr.maxlength]="lengthIdentificacion" id="noSpacesField" (keypress)="validarNumLetras($event)"
+          (keydown)="removeSpaces($event)" type="text" id="Identificacionp" formControlName="Identificacion"
+          class="form-control" placeholder="Identificación" [ngClass]="fieldCss(formulario,'Identificacion')" required
+          [readonly]="soloLectura" />
+        <label *ngIf="isFieldValid(formulario,'Identificacion')" class="invalid-feedback">
+          {{formErrors.Identificacion}}
+        </label>
+      </fieldset>
+    </div>
+  </div>
+  <div *ngIf="!esEmpresa">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label class="control-label required" for="pnombre">Primer Nombre:</label>
+        <input upperCase type="text" class="form-control" id="pnombre" formControlName="PrimerNombre"
+          placeholder="Primer Nombre" [ngClass]="fieldCss(formulario,'PrimerNombre')" [readonly]="soloLectura">
+        <label *ngIf="isFieldValid(formulario,'PrimerNombre')" class="invalid-feedback">
+          {{formErrors.PrimerNombre}}
+        </label>
+
+      </div>
+      <div class="form-group col-md-6">
+        <label for="snombre">Segundo Nombre:</label>
+        <input upperCase type="text" class="form-control" id="snombre" formControlName="SegundoNombre"
+          placeholder="Segundo Nombre" [ngClass]="fieldCss(formulario,'SegundoNombre')">
+        <label *ngIf="isFieldValid(formulario,'SegundoNombre')" class="invalid-feedback">
+          {{formErrors.SegundoNombre}}
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label class="control-label required" for="papellido">Primer Apellido:</label>
+        <input upperCase type="text" class="form-control" id="papellido" formControlName="PrimerApellido"
+          placeholder="Primer Apellido" [ngClass]="fieldCss(formulario,'PrimerApellido')" [readonly]="soloLectura">
+        <label *ngIf="isFieldValid(formulario,'PrimerApellido')" class="invalid-feedback">
+          {{formErrors.PrimerApellido}}
+        </label>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="sapellido">Segundo Apellido:</label>
+        <input upperCase type="text" class="form-control" id="sapellido" formControlName="SegundoApellido"
+          placeholder="Segundo Apellido" [ngClass]="fieldCss(formulario,'SegundoApellido')">
+        <label *ngIf="isFieldValid(formulario,'SegundoApellido')" class="invalid-feedback">
+          {{formErrors.SegundoApellido}}
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-4">
+        <label class="control-label required" for="fechaNaci">Fecha de Nacimiento:</label>
+        <mat-form-field class="full-tam">
+          <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="FechaNacimiento"
+            formControlName="FechaNacimiento" placeholder="dd/mm/aaaa" [readonly]="soloLectura">
+          <mat-datepicker-toggle matSuffix [for]="FechaNacimiento"></mat-datepicker-toggle>
+          <mat-datepicker #FechaNacimiento></mat-datepicker>
+        </mat-form-field>
+        <label *ngIf="isFieldValid(formulario,'FechaNacimiento')" class="custom-feedback">
+          {{formErrors.FechaNacimiento}}
+        </label>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="control-label required" for="genero">Género:</label>
+        <select class="form-control" formControlName="Genero" id="genero" [ngClass]="fieldCss(formulario,'Genero')">
+          <option *ngFor="let item of listaGenero; let i = index" [value]="item.Codigo">
+            {{item.Nombre}}
+          </option>
+        </select>
+        <label *ngIf="isFieldValid(formulario,'Genero')" class="invalid-feedback">
+          {{formErrors.Genero}}
+        </label>
+      </div>
+      <div class="form-group col-md-4">
+        <label class="control-label required" for="estadoCivil">Estado Civil:</label>
+        <select class="form-control" formControlName="EstadoCivil" id="estadoCivil"
+          [ngClass]="fieldCss(formulario,'EstadoCivil')">
+          <option *ngFor="let item of listaEstadoCivil; let i = index" [value]="item.Codigo">
+            {{item.Nombre}}
+          </option>
+        </select>
+        <label *ngIf="isFieldValid(formulario,'EstadoCivil')" class="invalid-feedback">
+          {{formErrors.EstadoCivil}}
+        </label>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="esEmpresa">
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <fieldset [disabled]="soloLectura">
+          <label class="control-label required" for="NombreJuridico">Nombre Comercial:</label>
+          <input upperCase type="text" class="form-control" id="NombreJuridico" formControlName="NombreJuridico"
+            placeholder="Nombre Comercial" [ngClass]="fieldCss(formulario,'NombreJuridico')">
+          <label *ngIf="isFieldValid(formulario,'NombreJuridico')" class="invalid-feedback">
+            {{formErrors.NombreJuridico}}
+          </label>
+        </fieldset>
+      </div>
+      <div class="form-group col-md-6">
+        <fieldset [disabled]="soloLectura">
+          <label class="control-label required" for="razonSocial">Razón Social:</label>
+          <input upperCase type="text" class="form-control" id="razonSocial" formControlName="RazonSocial"
+            placeholder="Razón social" [ngClass]="fieldCss(formulario,'RazonSocial')">
+          <label *ngIf="isFieldValid(formulario,'RazonSocial')" class="invalid-feedback">
+            {{formErrors.RazonSocial}}
+          </label>
+        </fieldset>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label class="control-label required" for="fechaConstitucion">Fecha inicio actividades:</label>
+        <mat-form-field class="full-tam">
+          <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="FechaConstitucion"
+            formControlName="FechaConstitucion" placeholder="dd/mm/aaaa" [readonly]="soloLectura">
+          <mat-datepicker-toggle matSuffix [for]="FechaConstitucion" [disabled]="soloLectura"></mat-datepicker-toggle>
+          <mat-datepicker #FechaConstitucion></mat-datepicker>
+        </mat-form-field>
+        <label *ngIf="isFieldValid(formulario,'FechaConstitucion')" class="custom-feedback">
+          {{formErrors.FechaConstitucion}}
+        </label>
+      </div>
+      <div class="form-group col-md-6">
+        <label class="control-label required" for="NombreRepresentante">Nombre del
+          Representante:</label>
+        <div class="input-group mb-3">
+          <input upperCase type="text" class="form-control" id="NombreRepresentante"
+            formControlName="NombreRepresentante" placeholder="Nombre Representante"
+            [ngClass]="fieldCss(formulario,'NombreRepresentante')" [readonly]="true">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" (click)="openFiltro()" type="button"><i
+                class="fas fa-search"></i></button>
+          </div>
+          <label *ngIf="isFieldValid(formulario,'NombreRepresentante')" class="invalid-feedback">
+            {{formErrors.NombreRepresentante}}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+  <h5>Contactabilidad</h5>
+  <mat-divider></mat-divider><br>
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label class="control-label required" for="emailp">Correo electrónico:</label>
+      <div class="input-group mb-3">
+        <input type="email" class="form-control" id="emailp" formControlName="EmailPersonal"
+          placeholder="Correo electrónico" [ngClass]="fieldCss(formulario,'EmailPersonal')" [readonly]="true">
+        <div class="input-group-append">
+          <button class="btn btn-outline-primary" (click)="openEmail('mdEmail')" type="button"><i
+              class="fas fa-at"></i></button>
+        </div>
+        <label *ngIf="isFieldValid(formulario,'EmailPersonal')" class="invalid-feedback">
+          {{formErrors.EmailPersonal}}
+        </label>
+      </div>
+    </div>
+    <div class="form-group col-md-6">
+      <label class="control-label required" for="telefonop">Teléfono:</label>
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" id="telefonop" formControlName="TelefonoDomicilio"
+          placeholder="Teléfono" [ngClass]="fieldCss(formulario,'TelefonoDomicilio')" [readonly]="true">
+        <div class="input-group-append">
+          <button class="btn btn-outline-primary" (click)="openTelefono('mdTelefono')" type="button"><i
+              class="fas fa-phone"></i></button>
+        </div>
+        <label *ngIf="isFieldValid(formulario,'TelefonoDomicilio')" class="invalid-feedback">
+          {{formErrors.TelefonoDomicilio}}
+        </label>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="esEmpresa">
+    <div class="form-row">
+      <div class="form-group col-md-12">
+        <label>Personas de contacto&nbsp;
+          <a class="puntero text-primary" (click)="openCCpopup()">
+            <b><i class="fas fa-search fa-lg animated-hover"></i></b></a></label>
+        <form [hidden]="verParentesco" name="form" [formGroup]="frmContacto" (ngSubmit)="addContacto()" #f="ngForm"
+          novalidate>
+          <div class="form-row border">
+            <div class="form-group row col-md-6 mt-4">
+              <label for="NombreContacto"
+                class="col-sm-3 col-form-label text-right control-label required">Nombres:</label>
+              <div class="col-sm-9">
+                <input readonly type="text" class="form-control form-control-sm" id="NombreContacto"
+                  formControlName="NombreContactoCliente" placeholder="Nombre de contacto"
+                  [ngClass]="fieldCss(frmContacto,'NombreContactoCliente')">
+                <label *ngIf="isFieldValid(frmContacto,'NombreContactoCliente')" class="invalid-feedback">
+                  {{frmErrorContacto.NombreContactoCliente}}
+                </label>
+              </div>
+            </div>
+            <div class="form-group col-md-5 row mt-4">
+              <label for="Parentesco" class="col-sm-5 col-form-label text-right control-label required">Tipo de
+                contacto:</label>
+              <div class="col-sm-7">
+                <select id="Parentesco" class="form-control form-control-sm" formControlName="Parentesco"
+                  [ngClass]="fieldCss(frmContacto,'Parentesco')">
+                  <option *ngFor="let item of listaParentesco; let i = index" [value]="item.Nombre">
+                    {{item.Nombre}}
+                  </option>
+                </select>
+                <label *ngIf="isFieldValid(frmContacto,'Parentesco')" class="invalid-feedback">
+                  {{frmErrorContacto.Parentesco}}
+                </label>
+              </div>
+            </div>
+            <div class="form-group col-md-1 mt-4">
+              <button class="btn btn-outline-primary btn-sm" type="submit" [disabled]="frmContacto.invalid"><i
+                  class="fas fa-plus"></i></button>&nbsp;
+              <button class="btn btn-outline-secondary btn-sm" (click)="limpiarContacto()"><i
+                  class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="form-group col-md-12">
+        <div class="table-responsive">
+          <table class="table table-sm table-hover table-bordered">
+            <thead class="dx-header-row">
+              <tr>
+                <th class="text-center">Acciones</th>
+                <th scope="col">Identificación</th>
+                <th scope="col">Nombres</th>
+                <th scope="col">Tipo de contacto</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="cfila_{{index}}" *ngFor="let item of listaClienteContacto; let index = index;">
+                <td class="text-center text-primary">
+                  <a title="Eliminar" class="puntero" (click)="validarEliminarTContacto(index)"><i
+                      class="fas fa-trash-alt"></i></a>
+                </td>
+                <td>{{item.Identificacion}}</td>
+                <td>{{item.NombreContactoCliente}}</td>
+                <td>{{item.Parentesco}}</td>
+                <td>{{item.TelefonoConvencional}}</td>
+                <td>{{item.Email}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="col-md-12">
+      <h5>Dirección <button class="btn btn-outline-primary btn-sm" (click)="openDireccion('mdDireccion')"
+          type="button"><b><i class="fas fa-plus"></i></b></button></h5>
+    </div>
+  </div>
+  <mat-divider></mat-divider><br>
+  <div class="form-row">
+    <div class="form-group col-md-4">
+      <label class="control-label required" for="pais">País:</label>
+      <dx-select-box #paisd formControlName="PaisDomicilio" placeholder="País"
+        (onSelectionChanged)="checkValidarPais(paisd.value)" [dataSource]="listaPais" valueExpr="Codigo"
+        displayExpr="Nombre" [readOnly]="true">
+      </dx-select-box>
+      <label class="custom-feedback" *ngIf="isFieldValid(formulario,'PaisDomicilio')">
+        El campo es requerido
+      </label>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="provincia">Provincia:</label>
+      <dx-select-box #provincia placeholder="Provincia" formControlName="ProvinciaDomicilio"
+        (onSelectionChanged)="obtenerCanton(provincia.value)" [dataSource]="listaProvincia" valueExpr="Codigo"
+        displayExpr="Nombre" [readOnly]="true">
+      </dx-select-box>
+      <label class="custom-feedback" *ngIf="isFieldValid(formulario,'ProvinciaDomicilio')">
+        El campo es requerido
+      </label>
+    </div>
+    <div class="form-group col-lg-4 col-md-4">
+      <label for="canton">Cantón:</label>
+      <dx-select-box formControlName="CantonDomicilio" placeholder="Cantón" [dataSource]="listaCanton"
+        valueExpr="Codigo" displayExpr="Nombre" [readOnly]="true">
+      </dx-select-box>
+      <label class="custom-feedback" *ngIf="isFieldValid(formulario,'CantonDomicilio')">
+        El campo es requerido
+      </label>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group col-lg-12 col-md-12">
+      <label class="control-label required" for="direccion">Dirección</label>
+      <dx-text-area [height]="90" [readOnly]="true" formControlName="DireccionDomicilio">
+      </dx-text-area>
+      <label class="custom-feedback" *ngIf="isFieldValid(formulario,'DireccionDomicilio')">
+        El campo es requerido
+      </label>
+    </div>
+  </div>
+  <br>
+  <div *ngIf="!identificacionURL">
+    <h5>Segmentación</h5>
+    <mat-divider></mat-divider><br>
+    <div class="form-row">
+      <div class="form-group col-md-3" *ngIf="formCliente.IdCliente">
+        <label for="Sementop">Segmento actual:</label>
+        <select disabled #item id="Sementop" class="form-control" value="{{formulario.get('Segmento').value}}">
+          <option value="" disabled></option>
+          <option *ngFor="let item of listaSegmentoAll; let i = index" [value]="item.Codigo">
+            {{item.Nombre}}
+          </option>
+        </select>
+      </div>
+      <div class="form-group {{formCliente.IdCliente? 'col-md-3': 'col-md-5'}}">
+        <label for="Sementoh">Segmento {{formCliente.IdCliente? 'nuevo': ''}}:</label>
+        <select #item id="Sementoh" class="form-control" formControlName="Segmento"
+          [ngClass]="fieldCss(formulario,'Segmento')" (change)="obtenerFuerzaVenta(item.value)">
+          <option *ngFor="let item of listaSegmento; let i = index" [value]="item.Codigo">
+            {{item.Nombre}}
+          </option>
+        </select>
+        <label *ngIf="isFieldValid(formulario,'Segmento')" class="invalid-feedback">
+          {{formErrors.Segmento}}
+        </label>
+      </div>
+      <div class="form-group {{formCliente.IdCliente? 'col-md-3': 'col-md-5'}}">
+        <label for="fventa">Fuerza de Venta:</label>
+        <select id="fventa" class="form-control" formControlName="FuerzaVenta"
+          [ngClass]="fieldCss(formulario,'FuerzaVenta')">
+          <option *ngFor="let item of listaFuerzaVenta; let i = index" [value]="item.Codigo">
+            {{item.Nombre}}
+          </option>
+        </select>
+        <label *ngIf="isFieldValid(formulario,'FuerzaVenta')" class="invalid-feedback">
+          {{formErrors.FuerzaVenta}}
+        </label>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="isVIP">¿Es VIP?</label>
+        <div class="onoffswitch">
+          <input type="checkbox" formControlName="EsVIP" class="onoffswitch-checkbox" id="isVIP"
+            [checked]="formulario.value.EsVIP">
+          <label class="onoffswitch-label" for="isVIP">
+            <span class="onoffswitch-inner"></span>
+            <span class="onoffswitch-switch"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <br>
+  </div>
+  <div class="form-row align-items-center">
+    <div class="col-auto">
+      <button class="my-1" type="submit" class="btn btn-outline-primary">Guardar</button>
+    </div>
+    <div class="col-auto">
+      <button type="button" (click)="cancelar()" class="btn btn-outline-secondary">Cancelar</button>
+    </div>
+  </div>
+</form>
+
+<dx-popup class="popup" [showTitle]="true" title="Representante Legal" [dragEnabled]="false"
+  [closeOnOutsideClick]="true" [(visible)]="popoupFiltro">
+  <div *dxTemplate="let data of 'content'">
+    <app-filtro (parametro)="eventoEmitter($event)" quienLlama="popoup"></app-filtro>
+  </div>
+</dx-popup>
+
+<dx-popup class="popup" [showTitle]="true" title="Contacto Cliente" [dragEnabled]="false" [closeOnOutsideClick]="true"
+  [(visible)]="popupCCli">
+  <div *dxTemplate="let data of 'content'">
+    <app-filtro (parametro)="eventoEmitter($event)" quienLlama="popupCC"></app-filtro>
+  </div>
+</dx-popup>
+
+<div class="modal fade" id="mdEmail" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <button *ngIf="!nuevoEmail" type="button" class="btn btn-outline-primary"
+          (click)="nuevoEmailReg()">Nuevo</button>&nbsp;
+        <button *ngIf="listaCorreos.length === 0 && !nuevoEmail" type="button" (click)="notiene()"
+          class="btn  btn-outline-secondary">No Tiene</button>
+        <form *ngIf="nuevoEmail" name="form" [formGroup]="frmEmail" (ngSubmit)="addUpdateEmail(frmEmail.value)"
+          #f="ngForm" novalidate>
+          <div class="form-row">
+            <div class="form-group col-md-3 input-group-sm">
+              <label for="TipoLocalizacion">Tipo Email:</label>
+              <select id="TipoLocalizacion" class="form-control" formControlName="TipoLocalizacion"
+                [ngClass]="fieldCss(frmEmail,'TipoLocalizacion')">
+                <option *ngFor="let item of catalogoCorreos; let i = index" [value]="item.Codigo">
+                  {{item.Nombre}}
+                </option>
+              </select>
+              <label *ngIf="isFieldValid(frmEmail,'TipoLocalizacion')" class="invalid-feedback">
+                {{frmErrorsEmail.TipoLocalizacion}}
+              </label>
+            </div>
+            <div class="form-group col-md-6 input-group-sm">
+              <label for="Valor">Email:</label>
+              <input [readonly]="bloquearInputMail" type="text" class="form-control" id="Valor" formControlName="Valor"
+                placeholder="Email" [ngClass]="fieldCss(frmEmail,'Valor')">
+              <label *ngIf="isFieldValid(frmEmail,'Valor')" class="invalid-feedback">
+                {{frmErrorsEmail.Valor}}
+              </label>
+            </div>
+            <div class="form-group col-md-1">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="checkEmail">¿Es principal?</label>
+              <fieldset [disabled]="rupEmail">
+                <label class="contener {{ rupEmail ? 'sinpuntero' : ''}}">
+                  <input id="checkEmail" type="checkbox" formControlName="EsPrincipal"
+                    (change)="verificarEmailPrincipal()">
+                  <span class="checkmark"></span>
+                </label>
+              </fieldset>
+            </div>
+          </div>
+          <button class="btn btn-outline-primary" type="submit"
+            [disabled]="frmEmail.invalid">{{operacionEmail ? 'Guardar cambios' : 'Agregar'}}</button>&nbsp;
+          <button type="button" (click)="cancelarEmail()" class="btn  btn-outline-secondary">Cancelar</button>&nbsp;
+        </form>
+        <hr>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover table-bordered">
+            <thead class="dx-header-row">
+              <tr>
+                <th class="text-center" colspan="2">Acciones</th>
+                <th scope="col">Email</th>
+                <th scope="col">Tipo Email</th>
+                <th scope="col">Es Principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="filaemail_{{index}}" *ngFor="let item of listaCorreos; let index = index;">
+                <td class="text-center text-primary">
+                  <a *ngIf="item.Activo" class="puntero" (click)="getFilaEmail(item,index)"><i
+                      class="fas fa-pencil-alt fa-lg"></i></a>&nbsp;&nbsp;
+                </td>
+                <td class="text-center text-primary"><a *ngIf="item.Activo && !item.EsPrincipal" title="Eliminar"
+                    class="puntero" (click)="validarEliminarEmail(index)"><i class="fas fa-trash-alt fa-lg"></i></a>
+                </td>
+                <td>{{item.Valor}}</td>
+                <td>{{getNombreEmail(item.TipoLocalizacion)}}</td>
+                <td class="text text-center">
+                  <fieldset disabled="true">
+                    <input type="checkbox" [checked]="item.EsPrincipal">
+                  </fieldset>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="mdTelefono" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <button *ngIf="!nuevoTelf" type="button" class="btn btn-outline-primary" (click)="nuevoTelfReg()">Nuevo</button>
+        <form *ngIf="nuevoTelf" name="form" [formGroup]="frmTelefono" (ngSubmit)="addUpdateTelefono(frmTelefono.value)"
+          #f="ngForm" novalidate>
+          <div class="form-row">
+            <div class="form-group col-md-4 input-group-sm">
+              <fieldset>
+                <label for="TipoTelefono">Tipo Teléfono:</label>
+                <select id="TipoTelefono" class="form-control form-control-sm" (change)="cambiarTipoTelefono()"
+                  formControlName="TipoLocalizacion" [ngClass]="fieldCss(frmTelefono,'TipoLocalizacion')">
+                  <option *ngFor="let item of catalogoTelefonos; let i = index" [value]="item.Codigo">
+                    {{item.Nombre}}
+                  </option>
+                </select>
+                <label *ngIf="isFieldValid(frmTelefono,'TipoLocalizacion')" class="invalid-feedback">
+                  {{frmErrorsTelefono.TipoLocalizacion}}
+                </label>
+              </fieldset>
+            </div>
+            <div class="form-group col-md-5 input-group-sm">
+              <fieldset [disabled]="tieneTipoTelf()">
+                <label for="Telefono">Teléfono:</label>
+                <input type="text" (keypress)="validarEntrada($event)" class="form-control form-control-sm"
+                  id="Telefono" formControlName="Valor" placeholder="Número de Teléfono"
+                  [attr.maxlength]="maxlengthTelf" [ngClass]="fieldCss(frmTelefono,'Valor')">
+                <label *ngIf="isFieldValid(frmTelefono,'Valor')" class="invalid-feedback">
+                  {{frmErrorsTelefono.Valor}}
+                </label>
+              </fieldset>
+            </div>
+            <div class="form-group col-md-1">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="checkTelf">¿Es principal?</label>
+              <fieldset [disabled]="rupTelefono">
+                <label class="contener {{ rupTelefono ? sinpuntero : ''}}">
+                  <input id="checkTelf" type="checkbox" formControlName="EsPrincipal"
+                    (change)="verificarTelfPrincipal()">
+                  <span class="checkmark"></span>
+                </label>
+              </fieldset>
+            </div>
+          </div>
+          <button class="btn btn-outline-primary" type="submit"
+            [disabled]="frmTelefono.invalid">{{operacionTelf ? 'Guardar cambios' : 'Agregar'}}</button>&nbsp;
+          <button type="button" (click)="cancelarTelf()" class="btn  btn-outline-secondary">Cancelar</button>
+        </form>
+        <hr>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover table-bordered">
+            <thead class="dx-header-row">
+              <tr>
+                <th class="text-center" colspan="2">Acciones</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Tipo Teléfono</th>
+                <th scope="col">Es Principal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="filatelf_{{index}}" *ngFor="let item of listaTelefonos; let index = index;">
+                <td class="text-center text-primary">
+                  <a *ngIf="item.Activo" class="puntero" (click)="getFilaTelefono(item,index)"><i
+                      class="fas fa-pencil-alt fa-lg"></i></a>
+                </td>
+                <td class="text-center text-primary"><a *ngIf="item.Activo && !item.EsPrincipal" title="Eliminar"
+                    class="puntero" (click)="validarEliminarTelf(index)"><i class="fas fa-trash-alt fa-lg"></i></a>
+                </td>
+                <td>{{item.Valor}}</td>
+                <td>{{getNombreTelefono(item.TipoLocalizacion)}}</td>
+                <td class="text text-center">
+                  <fieldset disabled="true">
+                    <input type="checkbox" [checked]="item.EsPrincipal">
+                  </fieldset>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="mdDireccion" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <button *ngIf="!nuevo" type="button" class="btn btn-outline-primary" (click)="nuevoReg()">Nuevo</button>
+        <form *ngIf="nuevo" name="form" [formGroup]="frmDirecion" (ngSubmit)="addUpdateDireccion(frmDirecion.value)"
+          #f="ngForm" novalidate>
+          <div class="form-row border">
+            <div class="form-group col-md-4 input-group-sm">
+              <label for="CodigoPais">País:</label>
+              <dx-select-box #paisdr id="CodigoPais" formControlName="CodigoPais" placeholder="Seleccione País"
+                [dataSource]="listaPais" (onSelectionChanged)="checkValidar(paisdr.value)" valueExpr="Codigo"
+                displayExpr="Nombre" [searchMode]="searchModeOption" [searchExpr]="searchExprOption"
+                [searchTimeout]="searchTimeoutOption" [minSearchLength]="minSearchLengthOption" [searchEnabled]="true"
+                [showClearButton]="true" [ngClass]="fieldCss(frmDirecion,'CodigoPais')">
+              </dx-select-box>
+              <label *ngIf="isFieldValid(frmDirecion,'CodigoPais')" class="invalid-feedback">
+                {{frmErrorsDireccion.CodigoPais}}
+              </label>
+            </div>
+            <div class="form-group col-md-4 input-group-sm">
+              <label for="CodigoProvincia">Provincia:</label>
+              <dx-select-box #provincia id="CodigoProvincia" placeholder="Seleccione Provincia"
+                formControlName="CodigoProvincia" (onSelectionChanged)="obtenerCantonPopup(provincia.value)"
+                [dataSource]="listaProvincia" valueExpr="Codigo" displayExpr="Nombre" [searchMode]="searchModeOption"
+                [searchExpr]="searchExprOption" [searchTimeout]="searchTimeoutOption"
+                [minSearchLength]="minSearchLengthOption" [searchEnabled]="true" [showClearButton]="true"
+                [readOnly]="letura" [ngClass]="fieldCss(frmDirecion,'CodigoProvincia')">
+              </dx-select-box>
+              <label *ngIf="isFieldValid(frmDirecion,'CodigoProvincia')" class="invalid-feedback">
+                {{frmErrorsDireccion.CodigoProvincia}}
+              </label>
+            </div>
+            <div class="form-group col-md-4 input-group-sm">
+              <label for="CodigoCanton">Cantón:</label>
+              <dx-select-box id="CodigoCanton" formControlName="CodigoCanton" placeholder="Seleccione Cantón"
+                [dataSource]="listaCantones" valueExpr="Codigo" displayExpr="Nombre" [searchMode]="searchModeOption"
+                [searchExpr]="searchExprOption" [searchTimeout]="searchTimeoutOption"
+                [minSearchLength]="minSearchLengthOption" [searchEnabled]="true" [showClearButton]="true"
+                [ngClass]="fieldCss(frmDirecion,'CodigoCanton')" [readOnly]="letura">
+              </dx-select-box>
+              <label *ngIf="isFieldValid(frmDirecion,'CodigoCanton')" class="invalid-feedback">
+                {{frmErrorsDireccion.CodigoCanton}}
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-4 input-group-sm">
+              <label for="TipoDireccion">Tipo de dirección:</label>
+              <select id="TipoDireccion" class="form-control" formControlName="TipoDireccion"
+                [ngClass]="fieldCss(frmDirecion,'TipoDireccion')">
+                <option *ngFor="let item of catalogoDirecciones; let i = index" [value]="item.Codigo">
+                  {{item.Nombre}}
+                </option>
+              </select>
+              <label *ngIf="isFieldValid(frmDirecion,'TipoDireccion')" class="invalid-feedback">
+                {{frmErrorsDireccion.TipoDireccion}}
+              </label>
+            </div>
+            <div class="form-group col-md-1">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="checkDire">¿Es principal?</label>
+              <fieldset [disabled]="rupDireccion">
+                <label class="contener {{ rupDireccion ? 'sinpuntero' : ''}}">
+                  <input id="checkDire" type="checkbox" formControlName="EsPrincipal"
+                    (change)="verificarDireccionPrincipal()">
+                  <span class="checkmark"></span>
+                </label>
+              </fieldset>
+            </div>
+            <div class="form-group col-md-1">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="checkactivo">Entregar correspondecia</label>
+              <label class="contener">
+                <input id="checkactivo" type="checkbox" formControlName="EntregaCorrespondencia"
+                  (change)="verificarEntregaCorrespondecia()">
+                <span class="checkmark"></span>
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6 input-group-sm">
+              <label for="CallePrincipal">Calle Principal:</label>
+              <input type="text" class="form-control" id="CallePrincipal" formControlName="CallePrincipal"
+                placeholder="Calle Principal" [ngClass]="fieldCss(frmDirecion,'CallePrincipal')">
+              <label *ngIf="isFieldValid(frmDirecion,'CallePrincipal')" class="invalid-feedback">
+                {{frmErrorsDireccion.CallePrincipal}}
+              </label>
+            </div>
+            <div class="form-group col-md-6 input-group-sm">
+              <label for="Numeracion">Numeración:</label>
+              <input type="text" class="form-control" id="Numeracion" formControlName="Numeracion"
+                placeholder="Numeración" [ngClass]="fieldCss(frmDirecion,'Numeracion')">
+              <label *ngIf="isFieldValid(frmDirecion,'Numeracion')" class="invalid-feedback">
+                {{frmErrorsDireccion.Numeracion}}
+              </label>
+            </div>
+            <div class="form-group col-md-6 input-group-sm">
+              <label for="CalleSecundaria">Calle Secundaria:</label>
+              <input type="text" class="form-control" id="CalleSecundaria" formControlName="CalleSecundaria"
+                placeholder="Calle Secundaria" [ngClass]="fieldCss(frmDirecion,'CalleSecundaria')">
+              <label *ngIf="isFieldValid(frmDirecion,'CalleSecundaria')" class="invalid-feedback">
+                {{frmErrorsDireccion.CalleSecundaria}}
+              </label>
+            </div>
+            <div class="form-group col-md-6 input-group-sm">
+              <label for="SitioReferencia">Sitio de Referencia:</label>
+              <input type="text" class="form-control" id="SitioReferencia" formControlName="SitioReferencia"
+                placeholder="Sitio de Referencia" [ngClass]="fieldCss(frmDirecion,'SitioReferencia')">
+              <label *ngIf="isFieldValid(frmDirecion,'SitioReferencia')" class="invalid-feedback">
+                {{frmErrorsDireccion.SitioReferencia}}
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-outline-primary" type="submit"
+            [disabled]="frmDirecion.invalid">{{operacion ? 'Guardar cambios' : 'Agregar'}}</button>&nbsp;
+          <button type="button" (click)="cancelarDireccion()" class="btn  btn-outline-secondary">Cancelar</button>
+        </form>
+        <hr>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover table-bordered">
+            <thead class="dx-header-row">
+              <tr>
+                <th class="text-center" colspan="2">Acciones</th>
+                <th scope="col">Calle Principal</th>
+                <th scope="col">Calle Secundaria</th>
+                <th scope="col">Tipo Dirección</th>
+                <th scope="col">Es Principal</th>
+                <th scope="col">Entregar Correspondecia</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="fila_{{index}}" *ngFor="let item of listaDirecciones; let index = index;">
+                <td class="text-center text-primary">
+                  <a *ngIf="item.Activo" title="Editar" class="puntero" (click)="getFilaDireccion(item,index)"><i
+                      class="fas fa-pencil-alt fa-lg"></i></a>
+                </td>
+                <td class="text-center text-primary"><a *ngIf="item.Activo && !item.EsPrincipal" title="Eliminar"
+                    class="puntero" (click)="validarEliminar(index)"><i class="fas fa-trash-alt fa-lg"></i></a></td>
+                <td>{{item.CallePrincipal}}</td>
+                <td>{{item.CalleSecundaria}}</td>
+                <td>{{getNombreDireccion(item.TipoDireccion)}}</td>
+                <td class="text text-center">
+                  <fieldset disabled="true">
+                    <input type="checkbox" [checked]="item.EsPrincipal">
+                  </fieldset>
+                </td>
+                <td class="text text-center">
+                  <fieldset disabled="true">
+                    <input type="checkbox" [checked]="item.EntregaCorrespondencia">
+                  </fieldset>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <div class="row p-4">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" (click)="setState(estados[0])" class="btn btn-outline-primary">Solicitudes</button>
+            <button type="button" (click)="setState(estados[1])" class="btn btn-outline-warning">Pendientes</button>
+            <button type="button" (click)="setState(estados[2])" class="btn btn-outline-success">Aprobados</button>
+            <button type="button" (click)="setState(estados[3])" class="btn btn-outline-danger">Rechazados</button>
+          </div>
+          <dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.2)" [(visible)]="cargando" [showIndicator]="true"
+            [showPane]="true" [shading]="true">
+          </dx-load-panel>
+          <div class="long-title">
+            <h3>{{default_titulo}}</h3>
+          </div>
+
+          <div class="table-responsive mt-2">
+            <table class="table table-sm table-hover table-bordered">
+              <thead class="dx-header-row">
+                <tr>
+                  <th scope="col" *ngIf="!visible">Acción</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Solicitante</th>
+                  <th scope="col">Ruc Empresa</th>
+                  <th scope="col">Empresa</th>
+                  <th scope="col">Fecha de Nacimiento</th>
+                  <th scope="col" *ngIf="visible">{{caption}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="text-center" id="safila_{{index}}" *ngFor="let item of listaSolicitudes; let index = index;">
+                  <td *ngIf="!visible" width="150">
+                    <button (click)="getRow(item, estados[2])" type="button" class="btn btn-outline-primary btn-sm" data-toggle="tooltip" data-placement="top" title="Aprobar solicitud">
+                      <i class="fas fa-check fa-lg"></i>
+                    </button>&nbsp;
+
+                    <button (click)="getRow(item, estados[3])" class="btn btn-outline-secondary btn-sm"  title="Rechazar solicitud">
+                      <i class="fas fa-times fa-lg"></i>
+                    </button>&nbsp;
+
+                    <button (click)="getRow(item, estados[1])" class="btn btn-outline-primary btn-sm" title="Enviar a corregir">
+                      <i class="fas fa-paper-plane fa-lg"></i>
+                    </button>
+                  </td>
+                  <td>{{item.FECHA | date: 'dd/MM/yyyy'}}</td>
+                  <td>{{item.SOLICITANTE}}</td>
+                  <td>{{item.RUC}}</td>
+                  <td>{{item.NOMBRE_EMP}}</td>
+                  <td>{{item.FECHA_EMP | date: 'dd/MM/yyyy'}}</td>
+                  <td *ngIf="visible">{{item.APROBADOR}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="mdVerificacionCode" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Código de verificación</h5>
+      </div>
+      <div class="modal-body tamanio-modal-body">
+        <p>Ingrese el código de verificación que fue enviado a su correo.</p>
+        <otp #codeInput [setting]="settings" (onValueChange)="onInputChange($event)"></otp>
+      </div>
+    </div>
+  </div>
+</div>

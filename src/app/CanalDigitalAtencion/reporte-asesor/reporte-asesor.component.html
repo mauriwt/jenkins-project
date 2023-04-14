@@ -1,0 +1,98 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <div class="dx-fieldset-header">Opciones de búsqueda:</div>
+      <form [formGroup]="frmFiltro" (ngSubmit)="realizarBusqueda()">
+        <table class="table table-borderless">
+          <tr>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Equipo:</mat-label>
+                <mat-select #selectpadre formControlName="IdEquipoCanalDigital" required>
+                  <mat-option *ngFor="let item of listaEquipo" [value]="item.IdEquipoCanalDigital">
+                    {{item.Nombre}}
+                  </mat-option>
+                </mat-select>
+                <mat-error>
+                  <span
+                    *ngIf="!frmFiltro.get('IdEquipoCanalDigital').valid && frmFiltro.get('IdEquipoCanalDigital').touched">El
+                    campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Fecha Inicio:</mat-label>
+                <input [min]="min" [max]="frmFiltro.value.FechaFin" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+                  formControlName="FechaInicio" [matDatepicker]="FECHAINICIO" required />
+                <mat-datepicker-toggle [for]="FECHAINICIO" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #FECHAINICIO></mat-datepicker>
+                <mat-error
+                  *ngIf="frmFiltro.get('FechaInicio').invalid && (frmFiltro.get('FechaInicio').dirty || frmFiltro.get('FechaInicio').touched || frmFiltro.get('FechaInicio').pristine)">
+                  <span *ngIf="frmFiltro.get('FechaInicio').errors.required">El campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Fecha Fin:</mat-label>
+                <input [min]="frmFiltro.value.FechaInicio" [max]="now" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+                  formControlName="FechaFin" [matDatepicker]="FECHAFIN" required />
+                <mat-datepicker-toggle [for]="FECHAFIN" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #FECHAFIN></mat-datepicker>
+                <mat-error
+                  *ngIf="frmFiltro.get('FechaFin').invalid && (frmFiltro.get('FechaFin').dirty || frmFiltro.get('FechaFin').touched || frmFiltro.get('FechaFin').pristine)">
+                  <span *ngIf="frmFiltro.get('FechaFin').errors.required">El campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+
+            </td>
+            <td class="content-center">
+              <button class="btn btn-outline-primary btn-sm" type="submit"
+                [disabled]="frmFiltro.invalid">BUSCAR</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+          <dx-data-grid (onToolbarPreparing)="onToolbarPreparing($event)" #gridAsesores noDataText="No hay registros"
+            id="gridAsesores" [dataSource]="dataSource" [showBorders]="true" [showColumnLines]="true"
+            [showRowLines]="true" [focusedRowEnabled]="true" [allowColumnResizing]="true" columnResizingMode="widget"
+            [columnMinWidth]="50" [columnAutoWidth]="true">
+            <dxo-sorting mode="none">
+            </dxo-sorting>
+            <dxo-export [enabled]="true" fileName="REPORTE_ESTADO_ASESORES"></dxo-export>
+            <dxo-filter-row [visible]="true" applyFilter="auto"></dxo-filter-row>
+            <dxo-paging [pageSize]="10"></dxo-paging>
+            <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+            </dxo-pager>
+
+            <dxi-column type="text" caption="#" [allowFiltering]="false" cellTemplate="indexar">
+            </dxi-column>
+            <dxi-column dataField="Equipo" alignment="center" caption="Equipo">
+            </dxi-column>
+
+            <dxi-column dataField="Asesor">
+            </dxi-column>
+
+            <dxi-column dataField="EstadoOcupacion" alignment="center" [width]="150" caption="Estado"
+              [allowFiltering]="false">
+            </dxi-column>
+
+            <dxi-column dataField="Fecha" dataType="date" alignment="center" format="dd/MM/yyyy HH:mm" caption="Fecha"
+              [allowFiltering]="true">
+            </dxi-column>
+
+            <div class="text-center" *dxTemplate="let data of 'indexar'">
+              <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+            </div>
+
+          </dx-data-grid>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

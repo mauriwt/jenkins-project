@@ -1,0 +1,217 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <div class="dx-fieldset-header">Opciones de búsqueda:</div>
+      <form [formGroup]="frmFiltro" (ngSubmit)="realizarBusqueda()">
+        <table class="table table-borderless">
+          <tr>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Equipo:</mat-label>
+                <mat-select #selectpadre formControlName="IdEquipoCanalDigital" required>
+                  <mat-option *ngFor="let item of listaEquipo" [value]="item.IdEquipoCanalDigital">
+                    {{item.Nombre}}
+                  </mat-option>
+                </mat-select>
+                <mat-error>
+                  <span
+                    *ngIf="!frmFiltro.get('IdEquipoCanalDigital').valid && frmFiltro.get('IdEquipoCanalDigital').touched">El
+                    campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Fecha Inicio:</mat-label>
+                <input [min]="min" [max]="frmFiltro.value.FechaFin" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+                  formControlName="FechaInicio" [matDatepicker]="FECHAINICIO" required />
+                <mat-datepicker-toggle [for]="FECHAINICIO" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #FECHAINICIO></mat-datepicker>
+                <mat-error
+                  *ngIf="frmFiltro.get('FechaInicio').invalid && (frmFiltro.get('FechaInicio').dirty || frmFiltro.get('FechaInicio').touched || frmFiltro.get('FechaInicio').pristine)">
+                  <span *ngIf="frmFiltro.get('FechaInicio').errors.required">El campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+            </td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <mat-form-field class="example-full-width">
+                <mat-label>Fecha Fin:</mat-label>
+                <input [min]="frmFiltro.value.FechaInicio" [max]="now" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+                  formControlName="FechaFin" [matDatepicker]="FECHAFIN" required />
+                <mat-datepicker-toggle [for]="FECHAFIN" matSuffix></mat-datepicker-toggle>
+                <mat-datepicker #FECHAFIN></mat-datepicker>
+                <mat-error
+                  *ngIf="frmFiltro.get('FechaFin').invalid && (frmFiltro.get('FechaFin').dirty || frmFiltro.get('FechaFin').touched || frmFiltro.get('FechaFin').pristine)">
+                  <span *ngIf="frmFiltro.get('FechaFin').errors.required">El campo es requerido.</span>
+                </mat-error>
+              </mat-form-field>
+
+            </td>
+            <td class="content-center">
+              <button class="btn btn-outline-primary btn-sm" type="submit"
+                [disabled]="frmFiltro.invalid">BUSCAR</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+      <div class="text-right">
+        <button #tooltip="matTooltip" matTooltip="Cargar Todos" matTooltipPosition='below' mat-icon-button
+          (click)="obtenerLlamadas()">
+          <mat-icon color="primary">
+            refresh
+          </mat-icon>
+        </button>
+      </div>
+      <div class="row">
+        <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+          <div id="accordion">
+            <div class="card" *ngFor="let item of listaTotalLlmadas; let i=index">
+              <div class="card-header" id="heading{{i}}">
+                <h5 class="mb-0">
+                  <button #btn (click)="obtenerDetalle(item.Codigo, btn)" class="btn btn-link" data-toggle="collapse"
+                    attr.data-target="#collapse{{item.Id}}" aria-expanded="false"
+                    attr.aria-controls="collapse{{item.Id}}">
+                    <b>{{item.Respuesta}}</b>
+                  </button>
+                  <span class="badge badge-pill"
+                    [ngClass]="{'badge-success': item.Codigo === 'FINALIZADO','badge-danger': item.Codigo === 'EXPIRADO','badge-warning': item.Codigo === 'PERDIDO'}">{{item.Cantidad}}</span>
+                </h5>
+              </div>
+
+              <div id="collapse{{item.Id}}" class="collapse" attr.aria-labelledby="heading{{i}}"
+                data-parent="#accordion">
+                <div class="card-body">
+                  <ng-container *ngIf="item.Codigo === 'PERDIDO'; else elseTemplate">
+                    <dx-data-grid #gridPerdidas noDataText="No hay registros" id="gridPerdidas"
+                      [dataSource]="dataSourcePerdidas" [showBorders]="true" [showColumnLines]="true"
+                      [showRowLines]="true" [focusedRowEnabled]="true" [allowColumnResizing]="true"
+                      columnResizingMode="widget" [columnMinWidth]="50" [columnAutoWidth]="true">
+                      <dxo-sorting mode="none">
+                      </dxo-sorting>
+                      <dxo-export [enabled]="true" [fileName]="fileName"></dxo-export>
+                      <dxo-filter-row [visible]="true" applyFilter="auto"></dxo-filter-row>
+                      <dxo-paging [pageSize]="10"></dxo-paging>
+                      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+                      </dxo-pager>
+                      <dxi-column [allowExporting]="false" dataField="Id" dataType="number" caption="#">
+                      </dxi-column>
+
+                      <dxi-column dataField="IdEquipoCanalDigital" alignment="center" caption="Equipo">
+                        <dxo-lookup [dataSource]="listaEquipo" valueExpr="IdEquipoCanalDigital" displayExpr="Nombre">
+                        </dxo-lookup>
+                      </dxi-column>
+
+                      <dxi-column dataField="Respuesta" alignment="center">
+                      </dxi-column>
+
+                      <dxi-column dataField="Identificacion" [width]="150" caption="Identificación"
+                        [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Apellidos" [width]="150" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Nombres" [width]="150" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Mail" [width]="150" caption="Email" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="NumeroCelular" [width]="150" caption="Celular" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Fecha" dataType="date" format="dd/MM/yyyy HH:mm" caption="Fecha Llamada"
+                        [allowFiltering]="true">
+                      </dxi-column>
+
+                    </dx-data-grid>
+
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <dx-data-grid #gridClientes noDataText="No hay registros" id="gridClientes"
+                      [dataSource]="dataSource" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true"
+                      [focusedRowEnabled]="true" [allowColumnResizing]="true" columnResizingMode="widget"
+                      [columnMinWidth]="50" [columnAutoWidth]="true">
+                      <dxo-sorting mode="none">
+                      </dxo-sorting>
+                      <dxo-export [enabled]="true" [fileName]="fileName" ></dxo-export>
+                      <dxo-filter-row [visible]="true" applyFilter="auto"></dxo-filter-row>
+                      <dxo-paging [pageSize]="10"></dxo-paging>
+                      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+                      </dxo-pager>
+                      <dxi-column type="text" caption="#" [allowExporting]="false" cellTemplate="indexar">
+                      </dxi-column>
+                      <dxi-column dataField="NombreEquipo" caption="Equipo">
+                      </dxi-column>
+                      <dxi-column dataField="NombreAsesor" caption="Asesor">
+                      </dxi-column>
+                      <dxi-column dataField="NombreSala" [alignment]="'center'" caption="Sala">
+                      </dxi-column>
+
+                      <dxi-column dataField="FechaHoraInicio" dataType="date" format="dd/MM/yyyy HH:mm"
+                        caption="Hora Inicio" [allowFiltering]="true">
+                      </dxi-column>
+                      <dxi-column dataField="FechaHoraFin" dataType="date" format="dd/MM/yyyy HH:mm" caption="Hora Fin"
+                        [allowFiltering]="true">
+                      </dxi-column>
+
+                      <dxi-column caption="Duración Llamada" [calculateCellValue]="minutoHoras"
+                        [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Nombre" [alignment]="'center'" caption="Cuidad">
+                      </dxi-column>
+
+                      <dxi-column dataField="CodigoRamo" alignment="center" caption="Ramo">
+                        <dxo-lookup [dataSource]="listaRamos" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+                      </dxi-column>
+
+                      <dxi-column dataField="CodigoSegmento" alignment="center" caption="Segmento">
+                        <dxo-lookup [dataSource]="listaSegmentos" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+                      </dxi-column>
+
+                      <dxi-column dataField="Nota" [width]="150" caption="Mensaje" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Identificacion" [width]="150" caption="Identificación"
+                        [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Apellidos" [width]="150" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Nombres" [width]="150" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="Mail" [width]="150" caption="Email" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="NumeroCelular" [width]="150" caption="Celular" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <dxi-column dataField="EstadoReunion" [allowFiltering]="false">
+                      </dxi-column>
+
+                      <div class="text-center" *dxTemplate="let data of 'indexar'">
+                        <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+                      </div>
+                    </dx-data-grid>
+                  </ng-template>
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

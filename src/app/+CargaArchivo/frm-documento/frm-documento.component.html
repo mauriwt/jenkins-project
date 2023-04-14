@@ -1,0 +1,81 @@
+<dx-scroll-view #scrollView id="scrollview" [scrollByContent]="true" [scrollByThumb]="true" [showScrollbar]="'onScroll'"
+    [bounceEnabled]="false">
+    <wt-shuyai *ngIf="cargarbox1 || cargarbox2"></wt-shuyai>
+    <form #f id="frmBuscar" [formGroup]="formulario" (ngSubmit)="confirmSave()">
+        <div class="form-row">
+            <div class="form-group col-lg-6 input-group-sm">
+                <fieldset [disabled]="bloquear">
+                    <label for="CodigoDetalleCatalogo">
+                        <b>Entidad documental:
+                            <b class="text text-danger">*</b>
+                        </b>
+                    </label>
+                    <select #fila (change)="obtenerTipoDocumento(fila.value)" id="CodigoDetalleCatalogo"
+                        class="form-control" formControlName="CodigoDetalleCatalogo"
+                        [ngClass]="fieldCss(formulario,'CodigoDetalleCatalogo')">
+                        <option value="" selected disabled>Seleccione un elemento...</option>
+                        <option *ngFor="let item of listaEntidadDocumental; let i = index" [value]="item.Codigo">
+                            {{item.Nombre}}
+                        </option>
+                    </select>
+                    <label *ngIf="isFieldValid(formulario,'CodigoDetalleCatalogo')" class="invalid-feedback">
+                        {{formErrors.CodigoDetalleCatalogo}}
+                    </label>
+                </fieldset>
+            </div>
+            <div class="form-group col-lg-6 input-group-sm">
+                <fieldset [disabled]="bloquear">
+                    <label for="CodigoTipoEntidadDocumental">
+                        <b>Tipo de documento:
+                            <b class="text text-danger">*</b>
+                        </b>
+                    </label>
+                    <select id="CodigoTipoEntidadDocumental" class="form-control"
+                        formControlName="CodigoTipoEntidadDocumental"
+                        [ngClass]="fieldCss(formulario,'CodigoTipoEntidadDocumental')">
+                        <option value="" selected disabled>Seleccione un elemento...</option>
+                        <option *ngFor="let item of listaTipoDocumento; let i = index"
+                            [value]="item.CodigoTipoEntidadDocumental">
+                            {{item.Nombre}}
+                        </option>
+                    </select>
+                    <label *ngIf="isFieldValid(formulario,'CodigoTipoEntidadDocumental')" class="invalid-feedback">
+                        {{formErrors.CodigoTipoEntidadDocumental}}
+                    </label>
+                </fieldset>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-lg-12 input-group-sm">
+                <label for="file">
+                    <b *ngIf="!bloquear">Subir documento pdf :
+                        <label class="text-danger">*</label>
+                    </b>
+                    <i *ngIf="bloquear"><b>Documento actual:</b>
+                        {{docTmp.ReferenciaExterna}}{{docTmp.CodigoTipoEntidadDocumental}}.pdf</i>
+                </label>
+                <div class="form-group">
+                    <div class="custom-file">
+                        <input lang="es" accept="application/pdf" type="file" formControlName="file" (change)="setArchivo($event)"
+                            class="custom-file-input puntero" id="customFileLang"
+                            [ngClass]="fieldCss(formulario,'file')">
+                        <label class="custom-file-label" for="customFileLang">{{fileName}}</label>
+                        <label *ngIf="isFieldValid(formulario,'file')" class="invalid-feedback">
+                            {{formErrors.file}}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-12 input-group-sm">
+                <label for="Descripcion">
+                    <b>Descripción:
+                    </b>
+                </label>
+                <textarea class="form-control" formControlName="Descripcion" id="Descripcion" rows="3"></textarea>
+            </div>
+        </div>
+        <br>
+        <button type="submit" class="btn btn-outline-primary">Guardar</button>&nbsp;
+        <button type="reset" (click)="cancelar()" class="btn btn-outline-secondary">Cancelar</button>
+    </form>
+</dx-scroll-view>

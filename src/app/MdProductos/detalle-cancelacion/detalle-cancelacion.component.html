@@ -1,0 +1,108 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div>
+    <div class="row">
+        <div class="col-8">
+            <div class="input-group my-2" style="width: 300px;">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="inputGroupFileAddon01">Número de Cuotas:</span>
+                </div>
+                <div class="custom-file">
+                    <input (keydown.enter)="CalcularResumen()" (keypress)="validarEntrada($event)" [(ngModel)]="numeroCuotas" type="number" class="form-control alinear-derecha" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm" min="1" step="1" maxlength="2">
+                </div>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04" (click)="CalcularResumen()">OK</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-4" style="position: relative;">
+            <h5 style="bottom: 0pt; position: absolute;">Resumen</h5>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-8 col-md-8 col-sm-12 col-xs-12">
+            <dx-data-grid id="gridCuotas" [dataSource]="listaCuotas" noDataText="No hay registros" [columnAutoWidth]="true" [focusedRowEnabled]="true" keyExpr="DebitarCuota" [hoverStateEnabled]="true" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true">
+                <dxo-load-panel [enabled]="false"></dxo-load-panel>
+                <dxo-scrolling mode="infinite"></dxo-scrolling>
+                <dxo-sorting mode="none"></dxo-sorting>
+                <dxi-column dataField="IdCertificado" [width]="50" caption="#" cellTemplate="indexar">
+                </dxi-column>
+                <dxi-column dataField="checked" [width]="50" caption="">
+                </dxi-column>
+                <dxi-column dataField="DebitarCuota" [alignment]="'center'" caption="# Cuota">
+                </dxi-column>
+                <dxi-column dataField="FechaPrevista" caption="Fecha Prevista" dataType="date" [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }">
+                </dxi-column>
+                <dxi-column dataField="FechaCobro" caption="Fecha Cobro" dataType="date" [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }">
+                </dxi-column>
+                <dxi-column dataField="Estado" caption="Estado" [alignment]="'center'">
+                </dxi-column>
+                <dxi-column dataField="PVPCobrado" dataType="number" caption="PVP" format="#,##0.00">
+                </dxi-column>
+                <dxi-column dataField="IVANombre" caption="Tipo de IVA" [alignment]="'center'">
+                </dxi-column>
+                <dxi-column dataField="Porcentaje" dataType="number" format="#,##0.00" caption="Porcentaje">
+                </dxi-column>
+                <div class="text-center" *dxTemplate="let data of 'indexar'">
+                    <b>{{ data.rowIndex + 1 }}</b>
+                </div>
+            </dx-data-grid>
+            <span class="badge badge-pill badge-secondary">Total de cuotas: {{listaCuotas.length}}</span>
+            <br>
+            <span class="badge badge-pill badge-info">Total de valor cobrado: {{TotalValorCuotas | number:"1.2-2"}}</span>
+        </div>
+        <div class="col-4 col-md-4 col-sm-12 col-xs-12">
+            <div class="row">
+                <div class="col-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-bordered">
+                            <thead class="dx-header-row">
+                                <tr>
+                                    <th scope="col" class="text-center">Cuotas</th>
+                                    <th scope="col" class="text-center">Tipo</th>
+                                    <th scope="col" class="text-center">PVP</th>
+                                    <th scope="col" class="text-center">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tamano-texto-tabla">
+                                <tr id="resumen_{{index}}" *ngFor="let item of resumenCuotas; let index = index;">
+                                    <td class="text-center">{{item.NumeroCuotas}}</td>
+                                    <td class="text-right">{{item.Tipo}}</td>
+                                    <td class="text-right">{{item.PVP | number:"1.2-2"}}</td>
+                                    <td class="text-right">{{item.Subtotal | number:"1.2-2"}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12 col-sm-12 col-xs-12">
+                    <h5>Valores adicionales</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-bordered">
+                            <thead class="dx-header-row">
+                                <tr>
+                                    <th scope="col" class="text-center">Descripción</th>
+                                    <th scope="col" class="text-center">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tamano-texto-tabla">
+                                <tr id="adicionales_{{index}}" *ngFor="let item of adicionalesCuotas; let index = index;">
+                                    <td>{{item.NombreAdicionales}}</td>
+                                    <td>
+                                        <input class="form-control alinear-derecha" id="valoradicional_{{index}}" type="text" [value]="item.Valor" (click)="$event.target.select()" appDirectiveDosDecimales>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12 col-sm-12 col-xs-12">
+                    <div class="float-right">
+                        <button class="btn btn-outline-primary" [disabled]="BloquearBoton" (click)="MostrarResumen()">Aceptar</button>&#xA0;
+                        <button class="btn btn-outline-secondary" (click)="Cancelar()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,63 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="row p-4">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+      <div class="form-row">
+        <div class="col-md-4">
+          <dx-select-box #servicioSeleccionado (onSelectionChanged)="checkFiltrarServicio(servicioSeleccionado.value)"
+          [dataSource]="listaServicios" valueExpr="valor" displayExpr="nombre">
+          </dx-select-box>
+        </div>
+        <div class="col-md-4">
+          <button (click)="procesoArchivoRespuesta()" class="my-1" type="button" class="btn btn-outline-primary btn-md">Procesar Registros</button>        
+        </div>        
+      </div>
+    </div>
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <br>
+    <dx-data-grid #grid id="gridContainer" noDataText="No hay registros" [allowColumnResizing]="true"
+      [columnAutoWidth]="true" [dataSource]="dataSource" keyExpr="IdCancelacionZoho" [focusedRowEnabled]="true"
+      [hoverStateEnabled]="true" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true">
+
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+      </dxo-pager>
+
+      <dxo-filter-row [visible]="true" [applyFilter]="opcionFiltro"></dxo-filter-row>
+      <dxi-column dataField="IdCancelacionZoho" caption="#" cellTemplate="indexar"
+        [allowFiltering]="false">
+      </dxi-column>
+
+      <dxi-column dataField="Identificacion" caption="Identificación">
+      </dxi-column>
+      <dxi-column dataField="NumeroCertificadoPoliza" caption="Número de Certificado">
+      </dxi-column>
+      <dxi-column dataField="Cliente" caption="Cliente">
+      </dxi-column>
+      <dxi-column dataField="RazonSocial" caption="Razón Social">
+      </dxi-column>
+      <dxi-column dataField="Producto" caption="Producto">
+      </dxi-column>
+      <dxi-column dataField="IdCancelacionZoho" caption="Id Zoho CRM">
+      </dxi-column>
+      <dxi-column dataField="NumeroSAC" caption="Número de SAC">
+      </dxi-column>
+      <dxi-column dataField="TotalProrrata" caption="Valor Prorrata" cellTemplate="prorrata">
+      </dxi-column>
+      <dxi-column dataField="TotalDevolver" caption="Valor a Devolver" cellTemplate="devolver">
+      </dxi-column>
+      <dxi-column dataField="Estado" caption="Estado" [alignment]="'center'">
+      </dxi-column>
+      <dxi-column dataField="FechaSolicitud" [format]="{ type: 'dd/MM/yyyy' }"  [editorOptions]="fechaOptions" dataType="date" [alignment]="'center'" caption="Fecha de Solicitud">
+      </dxi-column>
+      <div class="text-center" *dxTemplate="let data of 'indexar'">
+        <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+      </div>
+      <div class="text-right" *dxTemplate="let data of 'prorrata'">
+        {{data.value | number:"1.2-2"}}
+      </div>
+      <div class="text-right" *dxTemplate="let data of 'devolver'">
+        {{data.value | number:"1.2-2"}}
+      </div>
+    </dx-data-grid>
+  </div>
+</div>

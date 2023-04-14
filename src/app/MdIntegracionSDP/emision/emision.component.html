@@ -1,0 +1,297 @@
+<dx-load-panel #loadPanel shadingColor="rgba(0,0,0,0.2)" [(visible)]="cargando" [showIndicator]="true" [showPane]="true"
+  [shading]="true" [closeOnOutsideClick]="false">
+</dx-load-panel>
+<div class="option px-4">
+  <div class="dx-fieldset-header">Opciones de búsqueda:</div>
+
+  <form [formGroup]="regiForm" (ngSubmit)="realizarBusqueda()">
+    <table class="table table-borderless">
+      <tr>
+        <td>
+          <mat-form-field class="example-full-width">
+            <mat-label>Fecha Inicio:</mat-label>
+            <input [min]="min" [max]="regiForm.value.FechaFin" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+              formControlName="FechaInicio" [matDatepicker]="FECHAINICIO" required />
+            <mat-datepicker-toggle [for]="FECHAINICIO" matSuffix></mat-datepicker-toggle>
+            <mat-datepicker #FECHAINICIO></mat-datepicker>
+            <mat-error
+              *ngIf="regiForm.get('FechaInicio').invalid && (regiForm.get('FechaInicio').dirty || regiForm.get('FechaInicio').touched || regiForm.get('FechaInicio').pristine)">
+              <span *ngIf="regiForm.get('FechaInicio').errors.required">El campo es requerido.</span>
+            </mat-error>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field class="example-full-width">
+            <mat-label>Fecha Fin:</mat-label>
+            <input [min]="regiForm.value.FechaInicio" [max]="now" matInput placeholder="Fecha Inicio dd/mm/aaaa"
+              formControlName="FechaFin" [matDatepicker]="FECHAFIN" required />
+            <mat-datepicker-toggle [for]="FECHAFIN" matSuffix></mat-datepicker-toggle>
+            <mat-datepicker #FECHAFIN></mat-datepicker>
+            <mat-error
+              *ngIf="regiForm.get('FechaFin').invalid && (regiForm.get('FechaFin').dirty || regiForm.get('FechaFin').touched || regiForm.get('FechaFin').pristine)">
+              <span *ngIf="regiForm.get('FechaFin').errors.required">El campo es requerido.</span>
+            </mat-error>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field class="example-full-width">
+            <mat-label>Servicios:</mat-label>
+            <mat-select #selectpadre formControlName="IdServicio" (valueChange)="setValoresDefault($event)">
+              <mat-option>Ninguno</mat-option>
+              <mat-option *ngFor="let item of listaServicio" [value]="item.Codigo">
+                {{item.Nombre}}
+              </mat-option>
+            </mat-select>
+            <mat-error>
+              <span *ngIf="!regiForm.get('IdServicio').valid && regiForm.get('IdServicio').touched">El campo es requerido.</span>
+            </mat-error>
+          </mat-form-field>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <mat-form-field class="example-full-width">
+            <mat-label>Origen de Error:</mat-label>
+            <mat-select #selectpadre formControlName="TipoOrigen" (valueChange)="getCampoError($event)" required>
+              <mat-option>Ninguno</mat-option>
+              <mat-option *ngFor="let item of listaTipoOrigen" [value]="item.Codigo">
+                {{item.Nombre}}
+              </mat-option>
+            </mat-select>
+            <mat-error>
+              <span *ngIf="!regiForm.get('TipoOrigen').valid && regiForm.get('TipoOrigen').touched">El campo es requerido.</span>
+            </mat-error>
+          </mat-form-field>
+        </td>
+        <td>
+          <mat-form-field class="example-full-width">
+            <mat-label>Campo de Error:</mat-label>
+            <mat-select formControlName="DataField" [disableOptionCentering]="true" #select1 (valueChange)="getElemento($event)" [matTooltip]="regiForm.value.DataField" required>
+              <mat-select-filter [placeholder]="'Búscar Campos Error'" [displayMember]="'Descripcion'" *ngIf="select1.focused" [array]="camposError" (filteredReturn)="filteredCamposError =$event"></mat-select-filter>
+              <mat-option *ngFor="let item of filteredCamposError" [value]="item.Descripcion">
+                {{item.Descripcion}}
+              </mat-option>
+            </mat-select>
+            <mat-error>
+              <span *ngIf="!regiForm.get('DataField').valid && regiForm.get('DataField').touched">El campo es requerido.</span>
+            </mat-error>
+          </mat-form-field>
+        </td>
+        <td class="content-center">
+          <button class="btn btn-outline-primary btn-sm" type="submit" [disabled]="regiForm.invalid || ocultarGrid">BUSCAR</button>
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+<div class="px-4" [hidden]="!ocultarGrid">
+
+  <dx-toolbar>
+    <dxi-item location="before" widget="dxButton" [options]="saveButtonOptions">
+    </dxi-item>
+    <dxi-item location="before" widget="dxButton" [options]="cancelButtonOptions">
+    </dxi-item>
+  </dx-toolbar>
+  <dx-data-grid noDataText="No hay registros" (onRowPrepared)="onRowPrepared($event)" (onToolbarPreparing)="onToolbarPreparing($event)" id="gridBatch"
+    #gridBatch [columnAutoWidth]="true" [dataSource]="ArregloBatch" keyExpr="IdIntegracionEmisionError"
+    [showBorders]="true">
+    <dxo-paging [enabled]="false"></dxo-paging>
+    <dxo-filter-row [visible]="true" [applyFilter]="'auto'"></dxo-filter-row>
+    <dxo-scrolling mode="virtual"></dxo-scrolling>
+    <dxo-editing mode="batch" [allowUpdating]="true" [selectTextOnEditStart]="true" [startEditAction]="'click'">
+    </dxo-editing>
+
+    <dxi-column dataField="CodigoCertificadoNova" caption="Código Certificado Nova" [alignment]="'center'"
+      [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="NumeroCuota" caption="Número Cuota" [alignment]="'center'" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="TipoIdentificacion" caption="Tipo Identificación" [alignment]="'center'"
+      [setCellValue]="setCellValue" *ngIf="nombreCampo==='TipoIdentificacion'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaTipoidentificacion" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="NumeroIdentificacion" caption="Identificación" [alignment]="'center'" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="ApellidoPaterno" [setCellValue]="setCellValue" *ngIf="nombreCampo==='ApellidoPaterno'"
+      [editorOptions]="{showClearButton: true}">
+      <dxi-validation-rule type="pattern" [pattern]="letras"
+        message="El campo solo permite letras mayúsculas y sin espacios.">
+      </dxi-validation-rule>
+      <dxi-validation-rule type="required" message="El campo no puede estar vacío">
+      </dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="ApellidoMaterno" [setCellValue]="setCellValue" *ngIf="nombreCampo==='ApellidoMaterno'">
+      <dxi-validation-rule type="pattern" [pattern]="letras"
+        message="El campo solo permite letras mayúsculas y sin espacios.">
+      </dxi-validation-rule>
+      <dxi-validation-rule type="required" message="El campo no puede estar vacío"></dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="PrimerNombre" [setCellValue]="setCellValue" *ngIf="nombreCampo==='PrimerNombre'"
+      [editorOptions]="{showClearButton: true}">
+      <dxi-validation-rule type="pattern" [pattern]="letras" message="El campo solo permite letras mayúsculas.">
+      </dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="SegundoNombre" [setCellValue]="setCellValue" *ngIf="nombreCampo==='SegundoNombre'"
+      [editorOptions]="{showClearButton: true}">
+      <dxi-validation-rule type="pattern" [pattern]="letras" message="El campo solo permite letras mayúsculas.">
+      </dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="Genero" caption="Género" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='Genero'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaGenero" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="EstadoCivil" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='EstadoCivil'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaEstadoCivil" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="Nacionalidad" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='Nacionalidad'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaNacionalidad" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoPais" caption="País" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='CodigoPais'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaCodigoPais" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoProvincia" caption="Provincia" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='CodigoProvincia'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaProvincia" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoCanton" caption="Cantón" [alignment]="'center'" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='CodigoCanton'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaCanton" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="DireccionTitular" caption="Dirección Titular" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='DireccionTitular'" [editorOptions]="{showClearButton: true}">
+      <dxi-validation-rule type="pattern" [pattern]="direccion" message="El campo solo permite letras y números.">
+      </dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="TelefonoCelular" [alignment]="'center'" caption="Teléfono Celular"
+      [setCellValue]="setCellValue" *ngIf="nombreCampo==='TelefonoCelular'" [editorOptions]="{showClearButton: true}">
+      <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+      <dxi-validation-rule type="pattern" [pattern]="soloNumeros" message="El formato de celular no es válido">
+      </dxi-validation-rule>
+    </dxi-column>
+    <dxi-column dataField="CodigoActividadEconomica" caption="Actividad Económica" [setCellValue]="setCellValue"
+      *ngIf="nombreCampo==='CodigoActividadEconomica'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaActidadE" valueExpr="Codigo" displayExpr="Nombre">
+      </dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="InicioVigencia" dataType="date" [alignment]="'center'" [format]="{ type: 'dd/MM/yyyy' }"
+      [editorOptions]="fechaOptions" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="CodigoPlan" caption="Plan" dataType="number" [alignment]="'center'" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="FormaPago" [editorOptions]="opcionSelect" [allowEditing]="false">
+      <dxo-lookup [dataSource]="listaFormaPago" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoPeriodicidad" captiop="Periodicidad" [alignment]="'center'"
+      [editorOptions]="opcionSelect" [allowEditing]="false">
+      <dxo-lookup [dataSource]="listaCodigoPeriodicidad" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="SumaAsegurada" dataType="number" format="#,##0.00" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="TipoCuenta" [editorOptions]="opcionSelect" [allowEditing]="false">
+      <dxo-lookup [dataSource]="listaTipoCuenta" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="PrimaNetaCuota" format="#,##0.00" [allowEditing]="false"></dxi-column>
+    <dxi-column dataField="PrimaTotalCuota" format="#,##0.00" [allowEditing]="false"></dxi-column>
+    <dxi-column dataField="CodigoDebitoNova" caption="Código Débito Nova" [alignment]="'center'" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="ValorComision" caption="Valor Comisión" format="#,##0.00" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="FechaDebito" caption="Fecha Débito" dataType="date" [alignment]="'center'"
+      [format]="{ type: 'dd/MM/yyyy' }" [editorOptions]="fechaOptions" [allowEditing]="false">
+    </dxi-column>
+    <dxi-column dataField="NombreServicio" caption="Nombre Servicio" [editorOptions]="{showClearButton: true}"
+      [allowEditing]="false">
+    </dxi-column>
+
+
+  </dx-data-grid>
+</div>
+
+<div class="px-4" [hidden]="ocultarGrid">
+  <dx-toolbar>
+    <dxi-item *ngIf="btnEditarVer && esEditable" location="before" widget="dxButton" [options]="editButtonOptions">
+    </dxi-item>
+    <dxi-item *ngIf="btnEditarVer" location="after" widget="dxButton" [options]="exportButtonOptions">
+    </dxi-item>
+  </dx-toolbar>
+  <dx-data-grid keyExpr="IdIntegracionEmisionError" noDataText="No hay registros" id="gridPagi" #gridPagi
+    [dataSource]="dataSource" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true"
+    [columnAutoWidth]="true" [focusedRowEnabled]="true" [hoverStateEnabled]="true" [remoteOperations]="true">
+    <dxo-sorting mode="none">
+    </dxo-sorting>
+    <dxo-paging [pageSize]="50"></dxo-paging>
+    <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[50]" [showInfo]="true">
+    </dxo-pager>
+    <dxi-column dataField="CodigoCertificadoNova" caption="Código Certificado Nova" [alignment]="'center'">
+    </dxi-column>
+    <dxi-column dataField="NumeroCuota" [alignment]="'center'" caption="Número Cuota"></dxi-column>
+    <dxi-column dataField="TipoIdentificacion" [alignment]="'center'" [editorOptions]="opcionSelect"
+      caption="Tipo Identificación">
+      <dxo-lookup [dataSource]="listaTipoidentificacion" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="NumeroIdentificacion" [alignment]="'center'" caption="Identificación">
+    </dxi-column>
+    <dxi-column dataField="ApellidoPaterno">
+    </dxi-column>
+    <dxi-column dataField="ApellidoMaterno">
+    </dxi-column>
+    <dxi-column dataField="PrimerNombre">
+    </dxi-column>
+    <dxi-column dataField="SegundoNombre">
+    </dxi-column>
+    <dxi-column dataField="Genero" [alignment]="'center'" caption="Género" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaGenero" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="EstadoCivil" [alignment]="'center'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaEstadoCivil" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="Nacionalidad" [alignment]="'center'" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaNacionalidad" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoPais" [alignment]="'center'" caption="País" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaCodigoPais" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoProvincia" [alignment]="'center'" caption="Provincia" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaProvincia" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoCanton" [alignment]="'center'" caption="Cantón" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaCanton" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="DireccionTitular" caption="Dirección Titular">
+    </dxi-column>
+    <dxi-column dataField="TelefonoCelular" [alignment]="'center'" caption="Teléfono Celular">
+    </dxi-column>
+    <dxi-column dataField="CodigoActividadEconomica" caption="Actividad Económica">
+      <dxo-lookup [dataSource]="listaActidadE" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="InicioVigencia" [alignment]="'center'" dataType="date" [format]="{ type: 'dd/MM/yyyy' }"
+      [editorOptions]="fechaOptions"></dxi-column>
+    <dxi-column dataField="CodigoPlan" [alignment]="'center'" caption="Plan" [editorOptions]="opcionSelect">
+    </dxi-column>
+    <dxi-column dataField="FormaPago" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaFormaPago" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="CodigoPeriodicidad" [alignment]="'center'" caption="Periodicidad"
+      [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaCodigoPeriodicidad" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="SumaAsegurada" format="#,##0.00">
+    </dxi-column>
+    <dxi-column dataField="TipoCuenta" [editorOptions]="opcionSelect">
+      <dxo-lookup [dataSource]="listaTipoCuenta" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+    </dxi-column>
+    <dxi-column dataField="PrimaNetaCuota" format="#,##0.00"></dxi-column>
+    <dxi-column dataField="PrimaTotalCuota" format="#,##0.00"></dxi-column>
+    <dxi-column dataField="CodigoDebitoNova" caption="Código Débito Nova" [alignment]="'center'">
+    </dxi-column>
+    <dxi-column dataField="ValorComision" format="#,##0.00" caption="Valor Comisión"></dxi-column>
+    <dxi-column dataField="FechaDebito" [alignment]="'center'" caption="Fecha Débito" dataType="date"
+      [format]="{ type: 'dd/MM/yyyy' }" [editorOptions]="fechaOptions">
+    </dxi-column>
+    <dxi-column dataField="NombreServicio" caption="Nombre Servicio">
+    </dxi-column>
+  </dx-data-grid>
+</div>

@@ -1,0 +1,115 @@
+<div class="mt-1 pl-1 pr-1">
+  <div class="card">
+    <div class="card-body">
+      <dx-toolbar>
+        <dxi-item location="before" widget="dxButton" [options]="addButtonOptions">
+        </dxi-item>
+      </dx-toolbar>
+      <dx-data-grid #gridProcesos [dataSource]="dataSource" noDataText="No hay registros" [allowColumnResizing]="true"
+        [columnAutoWidth]="true" [focusedRowEnabled]="true" [hoverStateEnabled]="true" [showBorders]="true"
+        [showColumnLines]="true" [showRowLines]="true" showBorders="true" (onInitNewRow)="nuevoReg($event)"
+        (onEditingStart)="iniciarEdicion($event)">
+
+        <dxo-filter-row [visible]="true"></dxo-filter-row>
+        <dxo-paging [pageSize]="10"></dxo-paging>
+        <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+        </dxo-pager>
+        <dxo-editing mode="popup" [allowUpdating]="true">
+          <dxo-texts addRowButton="Nuevo Registro" editRow="Editar Registro"></dxo-texts>
+          <dxo-popup titleTemplate="title" [showTitle]="true" [width]="1000" [height]="600">
+            <div *dxTemplate="let data of 'title'">
+              <div class="dx-toolbar dx-widget dx-visibility-change-handler dx-collection" role="toolbar">
+                <div class="dx-toolbar-items-container">
+                  <div class="dx-toolbar-before">
+                    <div class="dx-item dx-toolbar-item dx-toolbar-label" style="max-width: 137px;">
+                      <div class="dx-item-content dx-toolbar-item-content">
+                        <div>{{popupTitulo}}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="dx-toolbar-center" style="margin: 0px 51px 0px 152px; float: none;"></div>
+                  <div class="dx-toolbar-after">
+                    <div class="dx-item dx-toolbar-item dx-toolbar-button">
+                      <div class="dx-item-content dx-toolbar-item-content">
+                        <dx-button icon="close" (onClick)="cancelar($event)">
+                        </dx-button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </dxo-popup>
+          <dxo-form [showColonAfterLabel]="true"></dxo-form>
+        </dxo-editing>
+
+        <dxo-scrolling mode="virtual"></dxo-scrolling>
+
+        <dxi-column type="text" cellTemplate="indexar" caption="#" disabled="true" [allowEditing]="false"
+          [allowFiltering]="false">
+        </dxi-column>
+
+        <dxi-column type="buttons" caption="Acción" [width]="70">
+          <dxi-button name="edit"></dxi-button>
+        </dxi-column>
+
+        <dxi-column dataField="TipoEntidad" [editorOptions]="opcionTipoEntidad" caption="Tipo de Entidad">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxo-lookup [dataSource]="catalogoTipoEntidad" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="CodigoProceso" [alignment]="'center'" dataType="string" caption="Código">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxi-validation-rule type="stringLength" max="56" message="Máximo de carácteres permitidos 56.">
+          </dxi-validation-rule>>
+          <dxi-validation-rule type="custom" [validationCallback]="mayuscula"
+            message="El campo solo permite números y letras mayúsculas.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="Nombre">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxi-validation-rule type="stringLength" max="56" message="Máximo de carácteres permitidos 56.">
+          </dxi-validation-rule>
+          <dxi-validation-rule type="pattern" [pattern]="letras" message="El campo solo permite letras mayúsculas.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="Descripcion" caption="Descripción">
+          <dxi-validation-rule type="pattern" [pattern]="letras" message="El campo solo permite letras mayúsculas.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="TipoProceso" [editorOptions]="opcionTipo" caption="Tipo">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxo-lookup [dataSource]="catalogoTipoProceso" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="SistemaAfectacionDatos" [editorOptions]="opcionSAD" caption="Sistema Afectación de Datos">
+          <dxi-validation-rule type="required" message="El campo es requerido."></dxi-validation-rule>
+          <dxo-lookup [dataSource]="catalogoSistema" valueExpr="Codigo" displayExpr="Nombre"></dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="RutaRespuesta" caption="Ruta de Respuesta">
+          <dxi-validation-rule type="pattern" [pattern]="ruta" message="La ruta ingresada no es válida.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="RutaEnvio" caption="Ruta de Envío">
+          <dxi-validation-rule type="pattern" [pattern]="ruta" message="La ruta ingresada no es válida.">
+          </dxi-validation-rule>
+        </dxi-column>
+        <dxi-column dataField="EsMultiproceso" dataType="boolean">
+        </dxi-column>
+
+        <dxi-column dataField="TablaProceso">
+        </dxi-column>
+        <dxi-column dataField="TablaProcesoError">
+        </dxi-column>
+        <dxi-column dataField="TablaIntegracion" caption="Tabla Integración">
+        </dxi-column>
+        <dxi-column dataField="TablaIntegracionError" caption="Tabla Integración Error">
+        </dxi-column>
+        <dxi-column dataField="Activo" dataType="boolean">
+        </dxi-column>
+
+        <div class="text-center" *dxTemplate="let data of 'indexar'">
+          <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+        </div>
+      </dx-data-grid>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,128 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="mt-1 pl-1 pr-1" style="overflow: hidden;">
+  <div class="px-1 py-1">
+    <img *ngIf="!cargarLogo" [src]="urlImg" [appImgFallback]="imgDefault" class="mb-3 mt-2" />
+    <button mat-icon-button data-toggle="tooltip" data-placement="left" title="Limpiar Formulario" class="float-right"
+      [hidden]="inactivarCampos" (click)="limpiarFrm()">
+      <mat-icon color="primary">
+        refresh
+      </mat-icon>
+    </button>
+    <form id="frmTurno" #form [formGroup]="frmAtencion" (ngSubmit)="confirmSave()" class="form-horizontal">
+      <div class="form-row">
+        <div class="form-group col-md-12 col-sm-12 col-12">
+          <fieldset>
+            <input data-toggle="tooltip" data-placement="bottom" title="Identificación" [readonly]="inactivarCampos"
+              placeholder="Ingrese su identificación" [maxlength]="14" (keypress)="validarEntrada($event)"
+              (keydown)="removeSpaces($event)" type="text" id="Identificacionp" formControlName="Identificacion"
+              class="form-control form-control-sm" [ngClass]="fieldCss(frmAtencion,'Identificacion')" required />
+            <label *ngIf="isFieldValid(frmAtencion,'Identificacion')" class="invalid-feedback">
+              {{frmErrorAtencion.Identificacion}}
+            </label>
+          </fieldset>
+        </div>
+        <div class="form-group col-md-12">
+          <input upperCase data-toggle="tooltip" data-placement="bottom" title="Nombres" [readonly]="inactivarCampos"
+            placeholder="Introduzca su nombre" type="text" id="Nombres" formControlName="Nombres"
+            class="form-control form-control-sm" [ngClass]="fieldCss(frmAtencion,'Nombres')" required />
+          <label *ngIf="isFieldValid(frmAtencion,'Nombres')" class="invalid-feedback">
+            {{frmErrorAtencion.Nombres}}
+          </label>
+        </div>
+        <div class="form-group col-md-12">
+          <input upperCase data-toggle="tooltip" data-placement="bottom" title="Apellidos" [readonly]="inactivarCampos"
+            placeholder="Introduzca su apellido" type="text" id="Apellidos" formControlName="Apellidos"
+            class="form-control form-control-sm" [ngClass]="fieldCss(frmAtencion,'Apellidos')" required />
+          <label *ngIf="isFieldValid(frmAtencion,'Apellidos')" class="invalid-feedback">
+            {{frmErrorAtencion.Apellidos}}
+          </label>
+        </div>
+        <div class="form-group col-md-12">
+          <input id="Mail" data-toggle="tooltip" data-placement="bottom" title="Correo Electrónico"
+            [readonly]="inactivarCampos" placeholder="Su correo electrónico" type="text" formControlName="Mail"
+            class="form-control form-control-sm" [ngClass]="fieldCss(frmAtencion,'Mail')" required />
+          <label *ngIf="isFieldValid(frmAtencion,'Mail')" class="invalid-feedback">
+            {{frmErrorAtencion.Mail}}
+          </label>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-12">
+          <input data-toggle="tooltip" data-placement="bottom" title="Número Celular" placeholder="Número de celular"
+            [readonly]="inactivarCampos" (keypress)="validarSoloNumer($event)" (keydown)="removeSpaces($event)"
+            [maxlength]="10" id="NumeroCelular" type="text" formControlName="NumeroCelular"
+            class="form-control form-control-sm" [ngClass]="fieldCss(frmAtencion,'NumeroCelular')" required />
+          <label *ngIf="isFieldValid(frmAtencion,'NumeroCelular')" class="invalid-feedback">
+            {{frmErrorAtencion.NumeroCelular}}
+          </label>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-12">
+          <select formControlName="IdProvincia" (change)="obtenerCanton()" #selectP class="form-control form-control-sm"
+            data-toggle="tooltip" data-placement="bottom" title="Selecione provincia" required
+            [ngClass]="fieldCss(frmAtencion,'IdProvincia')">
+            <option value="" disabled selected>Seleccione provincia</option>
+            <option *ngFor="let item of listaProvincia" [value]="item.Codigo"> {{item.Nombre}} </option>
+          </select>
+          <label *ngIf="isFieldValid(frmAtencion,'IdProvincia')" class="invalid-feedback">
+            {{frmErrorAtencion.IdProvincia}}
+          </label>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-12">
+          <select formControlName="IdCanton" #selectC class="form-control form-control-sm" data-toggle="tooltip"
+            data-placement="bottom" title="Selecione cantón" required [ngClass]="fieldCss(frmAtencion,'IdCanton')">
+            <option value="" disabled selected>Seleccione cantón</option>
+            <option *ngFor="let item of listaCanton" [value]="item.Codigo"> {{item.Nombre}} </option>
+          </select>
+          <label *ngIf="isFieldValid(frmAtencion,'IdCanton')" class="invalid-feedback">
+            {{frmErrorAtencion.IdCanton}}
+          </label>
+        </div>
+        <div class="form-group col-md-12 col-sm-12 col-12">
+          <select (change)="mostrarRamo()" formControlName="Equipo" #selectS class="form-control form-control-sm"
+            data-toggle="tooltip" data-placement="bottom" title="En que te podemos servir" required
+            [ngClass]="fieldCss(frmAtencion,'Equipo')">
+            <option value="" disabled selected>En que te podemos servir</option>
+            <option *ngFor="let item of listaEquipos" [value]="item.CodigoEquipoCanalDigital"> {{item.Nombre}} </option>
+          </select>
+          <label *ngIf="isFieldValid(frmAtencion,'Equipo')" class="invalid-feedback">
+            {{frmErrorAtencion.Equipo}}
+          </label>
+        </div>
+        <div *ngIf="verCmbxRamo" class="form-group col-md-12 col-sm-12 col-12">
+          <select formControlName="CodigoRamo" #selectRa class="form-control form-control-sm" data-toggle="tooltip"
+            data-placement="bottom" title="Selecione ramo" [required]="false"
+            [ngClass]="fieldCss(frmAtencion,'CodigoRamo')">
+            <option value="" disabled selected>Seleccione ramo</option>
+            <option *ngFor="let item of listaRamo" [value]="item.Codigo"> {{item.Nombre}} </option>
+          </select>
+          <label *ngIf="isFieldValid(frmAtencion,'CodigoRamo')" class="invalid-feedback">
+            {{frmErrorAtencion.CodigoRamo}}
+          </label>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="col-md-9 col-sm-9 col-9">
+          <button type="submit" [disabled]="frmAtencion.invalid" class="btn btn-primary btn-block btn-sm">Enviar
+            Solicitud</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="modal fade" id="mdVideoChat" tabindex="-1" role="dialog" data-keyboard="false" data-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h5 class="modal-title" id="exampleModalLongTitle">Videollamada</h5>
+        ¿Desea iniciar la videollamada con un asesor?
+      </div>
+      <div class="row">
+        <div class="col-md-1 col-sm-1 col-2"></div>
+        <div class="col-md-11 col-sm-11 col-10">
+          <div class="float-left mb-4">
+            <a class="btn btn-outline-primary" href="{{linkWhereby}}" target="_blank" (click)="aceptarLlamada()" role="button">SI</a>&nbsp;
+            <button type="button" class="btn btn-outline-secondary" (click)="rechazarLlamada()">NO</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

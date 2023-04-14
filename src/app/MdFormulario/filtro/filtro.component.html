@@ -1,0 +1,60 @@
+<wt-shuyai *ngIf="cargando"></wt-shuyai>
+<div class="row p-4">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <form id="frmBuscar" #formBuq="ngForm" (ngSubmit)="buscarCoincidencia(formBuq.value)">
+      <div class="form-row">
+        <div class="form-group col-md-6 has-search">
+          <span class="fa fa-search form-control-feedback"></span>
+          <input upperCase id="buscador" type="text" minlength="5" class="form-control"
+            (keydown.enter)="buscarCoincidencia(formBuq.value)" (keypress)="validarEntrada($event)"
+            placeholder="Ingrese criterio de búsqueda" name="termino" required ngModel #termino="ngModel"
+            data-toggle="popover" data-trigger="hover">
+          <span *ngIf="termino.value" id="searchclear" class="fas fa-times-circle" (click)="limpiar(formBuq)"></span>
+        </div>
+        <div class="form-group col-md-6">
+          <button class="my-1" type="submit" class="btn btn-outline-primary btn-md"
+            [disabled]="formBuq.invalid">Buscar</button>&nbsp;
+          <button (click)="nuevo(formBuq)" *ngIf="tituloBtn === 'tab'" matTooltip="Crear nuevo registro" class="my-1" type="button" class="btn btn-outline-primary btn-md"
+            >Nuevo</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+    <dx-data-grid #grid id="gridContainer" noDataText="No hay registros" [allowColumnResizing]="true"
+      [columnAutoWidth]="true" [dataSource]="dataSource" keyExpr="IdCliente" [focusedRowEnabled]="true"
+      [hoverStateEnabled]="true" [showBorders]="true" [showColumnLines]="true" [showRowLines]="true"
+      [selectedRowKeys]="[]">
+
+      <dxo-paging [pageSize]="10"></dxo-paging>
+      <dxo-pager [showPageSizeSelector]="true" [allowedPageSizes]="[5, 10, 20]" [showInfo]="true">
+      </dxo-pager>
+
+      <dxo-filter-row [visible]="true" [applyFilter]="opcionFiltro"></dxo-filter-row>
+      <dxi-column dataField="Identificacion" caption="#" [allowEditing]="false" cellTemplate="indexar"
+        [allowFiltering]="false">
+      </dxi-column>
+
+      <dxi-column dataField="Identificacion" caption="" [allowEditing]="false" cellTemplate="detalle"
+        [allowFiltering]="false">
+      </dxi-column>
+
+      <dxi-column dataField="Identificacion" caption="Identificación" [allowEditing]="false">
+      </dxi-column>
+      <dxi-column dataField="NombreCompleto" [allowEditing]="false">
+      </dxi-column>
+      <dxi-column dataField="EmailPersonal" caption="Email" [allowEditing]="false">
+      </dxi-column>
+      <div class="text-center" *dxTemplate="let data of 'detalle'"
+        title="{{tituloBtn === 'tab' ? 'Ver detalle':'Seleccionar registro'}}">
+        <a *ngIf="data.value" class="puntero" (click)="getCedula(data.data)">
+          <i class="text-primary fas {{tituloBtn === 'tab'? 'fa-eye':'fa-user-check'}} fa-lg"></i>
+        </a>
+      </div>
+      <div class="text-center" *dxTemplate="let data of 'indexar'">
+        <b>{{ data.component.pageIndex() * data.component.pageSize() + data.rowIndex + 1 }}</b>
+      </div>
+
+    </dx-data-grid>
+  </div>
+</div>
