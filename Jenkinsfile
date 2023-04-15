@@ -7,5 +7,11 @@ pipeline {
       }
     }
 
+    stage('Test Build') {
+      steps {
+        sh 'npm install && npm run build'
+      }
+    }
+
   }
 }
