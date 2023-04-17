@@ -7,12 +7,6 @@ pipeline {
       }
     }
 
-    stage('Test Build') {
-      steps {
-        sh 'npm install && npm run build'
-      }
-    }
-
     stage('Docker Build') {
       steps {
         sh 'docker build -f Dockerfile . '
