@@ -26,11 +26,11 @@ pipeline {
 
     stage('Login to DocketHub') {
       environment {
-        DOCKERHUB_USER = 'mtituana'
-        DOCKERHUB_PASSWORD = 'wtitu@na.o4$4'
+        DOCKERHUB_CREDENTIALS = credentials('dockerCredential')
       }
       steps {
-        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
+        sh '$DOCKERHUB_CREDENTIALS_USR $DOCKERHUB_CREDENTIALS_PSW'
+        sh 'docker login -u $DOCKERHUB_CREDENTIALS_USR -p $DOCKERHUB_CREDENTIALS_PSW'
       }
     }
 
