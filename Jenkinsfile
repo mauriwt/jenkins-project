@@ -11,7 +11,7 @@ pipeline {
 
         stage('Directorio') {
           steps {
-            sh '${env.BUILD_ID} $DOCKERHUB_USER  $DOCKERHUB_PASSWORD'
+            sh '${env.BUILD_ID}'
           }
         }
 
