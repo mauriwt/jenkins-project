@@ -11,7 +11,7 @@ pipeline {
 
         stage('Directorio') {
           steps {
-            sh '${env.BUILD_ID}'
+            sh '$BUILD_NUMBER'
           }
         }
 
