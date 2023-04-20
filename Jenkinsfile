@@ -20,7 +20,7 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        sh 'docker build -f Dockerfile . '
+        sh 'docker build -t mtituana/angular-app .'
       }
     }
 
@@ -30,6 +30,8 @@ pipeline {
       }
       steps {
         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        sh 'docker tag mtituana/angular-app mtituana/angular-app:v$BUILD_NUMBER'
+        sh 'docker push mtituana/angular-app:v$BUILD_NUMBER'
       }
     }
 
