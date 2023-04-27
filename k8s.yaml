@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: angular-app-v19
-  namespace: default
+  namespace: jenkins
 spec:
   replicas: 2
   selector:
@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
       - name: app-site
-        image: mtituana/angular-app:v${BUILD_NUMBER}
+        image: mtituana/angular-app:v19
         imagePullPolicy: IfNotPresent
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: app-entrypoint
-  namespace: default
+  namespace: jenkins
 spec:
   type: NodePort
   selector:
