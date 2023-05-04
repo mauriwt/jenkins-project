@@ -26,7 +26,7 @@ pipeline {
 
     stage('k8s deploy') {
       steps {
-        sh 'kubectl apply -f k8s.yaml --context Kubernetes'
+        sh 'kubectl apply -f k8s.yaml --context docker-desktop'
       }
     }
 
